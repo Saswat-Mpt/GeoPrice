@@ -35,13 +35,15 @@ def calculate_rolling_volatility(df: pd.DataFrame, commodity: str) -> pd.DataFra
 
 def create_geopolitical_features(df: pd.DataFrame, release_lag_months: int = 0) -> pd.DataFrame:
     """
-    Creates 6 geopolitical risk features from GPR, GPRT, GPRA using release-aware availability rule:
+    Creates geopolitical risk features from GPR, GPRT, GPRA using release-aware availability rule:
     1. GPR level (GPR_t)
     2. GPR monthly change (GPR_t - GPR_(t-1), absolute change)
     3. GPR lag-1 (GPR_(t-1))
     4. GPR lag-3 (GPR_(t-3))
     5. GPRT level (GPRT_t)
     6. GPRA level (GPRA_t)
+    7. GPR_z12 (12-month trailing GPR z-score: (GPR_t - rolling_mean_12_t) / rolling_std_12_t)
+       Uses backward-looking trailing window ONLY (no centered windows, no future observations).
     """
     df_pit = apply_gpr_availability_rule(df, release_lag_months=release_lag_months)
     res = pd.DataFrame(index=df.index)
@@ -53,6 +55,11 @@ def create_geopolitical_features(df: pd.DataFrame, release_lag_months: int = 0) 
     res['GPR_lag3'] = gpr_series.shift(3)
     res['GPRT'] = df_pit['GPRT_pit']
     res['GPRA'] = df_pit['GPRA_pit']
+    
+    # 12-month trailing z-score (strictly backward-looking)
+    rolling_mean_12 = gpr_series.rolling(window=12, min_periods=12).mean()
+    rolling_std_12 = gpr_series.rolling(window=12, min_periods=12).std(ddof=1)
+    res['GPR_z12'] = (gpr_series - rolling_mean_12) / rolling_std_12
     
     return res
 

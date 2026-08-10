@@ -51,6 +51,15 @@ def predict_next_month(commodity: str) -> Dict[str, Any]:
     pred_return = float(pipeline.predict(X_input)[0])
     pred_dir = "UP" if pred_return > 0 else "DOWN"
 
+    # Directional probability lookup from secondary classification experiment
+    prob_pos = np.nan
+    dir_res_path = os.path.join(DATA_DIR, "directional_results.csv")
+    if os.path.exists(dir_res_path):
+        dir_df = pd.read_csv(dir_res_path)
+        c_row = dir_df[dir_df['Commodity'] == commodity]
+        if len(c_row) > 0:
+            prob_pos = float(c_row['Accuracy'].values[0]) * 100.0
+
     # Next month label calculation
     p_date = pd.to_datetime(latest_date)
     target_month = str((p_date + pd.DateOffset(months=1)).to_period('M'))
@@ -85,6 +94,7 @@ def predict_next_month(commodity: str) -> Dict[str, Any]:
         "predicted_return_decimal": pred_return,
         "predicted_return_pct": pred_return * 100.0,
         "predicted_direction": pred_dir,
+        "prob_positive_return_pct": prob_pos,
         "intercept": intercept,
         "feature_values": feat_dict,
         "feature_weights": weights_df

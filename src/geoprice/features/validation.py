@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 from geoprice.features.engineering import COMMODITIES
 
-EXPECTED_COMMON_FEATURES = ['GPR', 'GPR_change', 'GPR_lag1', 'GPR_lag3', 'GPRT', 'GPRA', 'DXY']
+EXPECTED_COMMON_FEATURES = ['GPR', 'GPR_change', 'GPR_lag1', 'GPR_lag3', 'GPRT', 'GPRA', 'GPR_z12', 'DXY']
 
 def get_commodity_feature_names(commodity: str) -> list:
     return [
@@ -78,7 +78,7 @@ def validate_features(feature_df: pd.DataFrame, df_raw: pd.DataFrame = None) -> 
     return results
 
 def create_feature_dictionary(feature_df: pd.DataFrame) -> pd.DataFrame:
-    """Creates metadata feature dictionary describing all 11 features per commodity."""
+    """Creates metadata feature dictionary describing all features per commodity."""
     dict_rows = [
         # Common Geopolitical Features
         {"Feature_Name": "GPR", "Group": "Geopolitical", "Definition": "GPR level at month t (GPR_t)", "Source": "Caldara-Iacoviello", "Window": "Current Month", "Availability_Rule": "Release-aware point-in-time", "Expected_Missingness": "Missing pre-1985"},
@@ -87,6 +87,7 @@ def create_feature_dictionary(feature_df: pd.DataFrame) -> pd.DataFrame:
         {"Feature_Name": "GPR_lag3", "Group": "Geopolitical", "Definition": "GPR level at month t-3 (GPR_(t-3))", "Source": "Caldara-Iacoviello", "Window": "Lag-3", "Availability_Rule": "Release-aware point-in-time", "Expected_Missingness": "First 3 months NaN"},
         {"Feature_Name": "GPRT", "Group": "Geopolitical", "Definition": "Geopolitical Threats subindex level (GPRT_t)", "Source": "Caldara-Iacoviello", "Window": "Current Month", "Availability_Rule": "Release-aware point-in-time", "Expected_Missingness": "Missing pre-1985"},
         {"Feature_Name": "GPRA", "Group": "Geopolitical", "Definition": "Geopolitical Acts subindex level (GPRA_t)", "Source": "Caldara-Iacoviello", "Window": "Current Month", "Availability_Rule": "Release-aware point-in-time", "Expected_Missingness": "Missing pre-1985"},
+        {"Feature_Name": "GPR_z12", "Group": "Geopolitical", "Definition": "12-month trailing GPR z-score: (GPR_t - rolling_mean_12) / rolling_std_12", "Source": "Caldara-Iacoviello", "Window": "12 Months", "Availability_Rule": "Release-aware point-in-time", "Expected_Missingness": "First 12 months NaN"},
         
         # Macro Control
         {"Feature_Name": "DXY", "Group": "Macro Control", "Definition": "Monthly arithmetic mean U.S. Dollar Index", "Source": "FRED", "Window": "Current Month", "Availability_Rule": "Point-in-time control", "Expected_Missingness": "Missing pre-2001"},

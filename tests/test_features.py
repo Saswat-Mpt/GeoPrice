@@ -93,8 +93,8 @@ def test_gpr_lags(sample_data):
 def test_feature_dataset_structure(sample_data):
     feat_df = build_feature_dataset(sample_data)
     assert len(feat_df) == len(sample_data)
-    # Total columns: Date + 7 common + 20 commodity (4x5) = 28
-    assert len(feat_df.columns) == 28
+    # Total columns: Date + 8 common (GPR 6 + GPR_z12 1 + DXY 1) + 20 commodity (4x5) = 29
+    assert len(feat_df.columns) == 29
     for c in COMMODITIES:
         for f in [f"{c}_return_1m", f"{c}_return_3m", f"{c}_return_6m", f"{c}_vol_3m"]:
             assert f in feat_df.columns
