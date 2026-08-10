@@ -1,0 +1,11 @@
+{
+    "baseline_validated": true,
+    "geoprice_validated": true,
+    "same_oos_dates": true,
+    "target_definition_validated": true,
+    "expanding_window_validated": true,
+    "ablation_completed": true,
+    "robustness_completed": true,
+    "leakage_audit_passed": true,
+    "all_tests_passed": true
+}

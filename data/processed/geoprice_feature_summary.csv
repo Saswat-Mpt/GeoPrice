@@ -1,0 +1,61 @@
+Commodity,Feature,Coefficient,Feature_Group,Absolute_Coefficient
+Brent,Brent_return_1m,0.0294634489747267,Commodity History,0.0294634489747267
+Brent,Intercept,0.0058559684842175,Intercept,0.0058559684842175
+Brent,GPRA,-0.005684374284948,Geopolitical,0.005684374284948
+Brent,Brent_return_6m,-0.0040536385900217,Commodity History,0.0040536385900217
+Brent,Brent_return_3m,-0.0019140690625491,Commodity History,0.0019140690625491
+Brent,Brent_vol_3m,0.0,Commodity History,0.0
+Brent,GPR,-0.0,Geopolitical,0.0
+Brent,GPR_change,0.0,Geopolitical,0.0
+Brent,GPR_lag1,-0.0,Geopolitical,0.0
+Brent,GPR_lag3,-0.0,Geopolitical,0.0
+Brent,GPRT,-0.0,Geopolitical,0.0
+Brent,DXY,-0.0,Macro,0.0
+Copper,Copper_return_1m,0.0190055149105414,Commodity History,0.0190055149105414
+Copper,Intercept,0.006402433993398,Intercept,0.006402433993398
+Copper,Copper_return_3m,0.0,Commodity History,0.0
+Copper,Copper_return_6m,-0.0,Commodity History,0.0
+Copper,Copper_vol_3m,0.0,Commodity History,0.0
+Copper,GPR,-0.0,Geopolitical,0.0
+Copper,GPR_change,0.0,Geopolitical,0.0
+Copper,GPR_lag1,-0.0,Geopolitical,0.0
+Copper,GPR_lag3,-0.0,Geopolitical,0.0
+Copper,GPRT,-0.0,Geopolitical,0.0
+Copper,GPRA,0.0,Geopolitical,0.0
+Copper,DXY,0.0,Macro,0.0
+Gold,Intercept,0.0089326577821224,Intercept,0.0089326577821224
+Gold,Gold_return_1m,0.0030038111330992,Commodity History,0.0030038111330992
+Gold,Gold_return_3m,0.0,Commodity History,0.0
+Gold,Gold_return_6m,0.0,Commodity History,0.0
+Gold,Gold_vol_3m,0.0,Commodity History,0.0
+Gold,GPR,-0.0,Geopolitical,0.0
+Gold,GPR_change,0.0,Geopolitical,0.0
+Gold,GPR_lag1,-0.0,Geopolitical,0.0
+Gold,GPR_lag3,0.0,Geopolitical,0.0
+Gold,GPRT,-0.0,Geopolitical,0.0
+Gold,GPRA,-0.0,Geopolitical,0.0
+Gold,DXY,0.0,Macro,0.0
+Natural_Gas,Natural_Gas_vol_3m,-0.0175560017844687,Commodity History,0.0175560017844687
+Natural_Gas,Intercept,0.0085048725545621,Intercept,0.0085048725545621
+Natural_Gas,GPRT,0.0073837030843307,Geopolitical,0.0073837030843307
+Natural_Gas,Natural_Gas_return_6m,-0.0030722345399486,Commodity History,0.0030722345399486
+Natural_Gas,Natural_Gas_return_1m,-0.0020413379632617,Commodity History,0.0020413379632617
+Natural_Gas,GPR_lag3,-0.0017557340081749,Geopolitical,0.0017557340081749
+Natural_Gas,Natural_Gas_return_3m,-0.0,Commodity History,0.0
+Natural_Gas,GPR,0.0,Geopolitical,0.0
+Natural_Gas,GPR_change,0.0,Geopolitical,0.0
+Natural_Gas,GPR_lag1,-0.0,Geopolitical,0.0
+Natural_Gas,GPRA,-0.0,Geopolitical,0.0
+Natural_Gas,DXY,0.0,Macro,0.0
+Wheat,Wheat_return_1m,0.0087077701844961,Commodity History,0.0087077701844961
+Wheat,Intercept,0.0052860278909452,Intercept,0.0052860278909452
+Wheat,GPR_lag3,-0.002184838661456,Geopolitical,0.002184838661456
+Wheat,Wheat_vol_3m,-0.0009444733754938,Commodity History,0.0009444733754938
+Wheat,Wheat_return_3m,-0.0,Commodity History,0.0
+Wheat,Wheat_return_6m,-0.0,Commodity History,0.0
+Wheat,GPR,0.0,Geopolitical,0.0
+Wheat,GPR_change,0.0,Geopolitical,0.0
+Wheat,GPR_lag1,-0.0,Geopolitical,0.0
+Wheat,GPRT,0.0,Geopolitical,0.0
+Wheat,GPRA,0.0,Geopolitical,0.0
+Wheat,DXY,0.0,Macro,0.0

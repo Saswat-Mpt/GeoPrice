@@ -1,0 +1,104 @@
+{
+    "project": "GeoPrice",
+    "version": "1.0.0",
+    "pipeline": "StandardScaler -> ElasticNet",
+    "alpha": 0.01,
+    "l1_ratio": 0.5,
+    "commodities": {
+        "Brent": {
+            "model_file": "brent_model.joblib",
+            "feature_columns": [
+                "Brent_return_1m",
+                "Brent_return_3m",
+                "Brent_return_6m",
+                "Brent_vol_3m",
+                "GPR",
+                "GPR_change",
+                "GPR_lag1",
+                "GPR_lag3",
+                "GPRT",
+                "GPRA",
+                "DXY"
+            ],
+            "training_samples": 246,
+            "training_start": "2006-01",
+            "training_end": "2026-06"
+        },
+        "Natural_Gas": {
+            "model_file": "natural_gas_model.joblib",
+            "feature_columns": [
+                "Natural_Gas_return_1m",
+                "Natural_Gas_return_3m",
+                "Natural_Gas_return_6m",
+                "Natural_Gas_vol_3m",
+                "GPR",
+                "GPR_change",
+                "GPR_lag1",
+                "GPR_lag3",
+                "GPRT",
+                "GPRA",
+                "DXY"
+            ],
+            "training_samples": 246,
+            "training_start": "2006-01",
+            "training_end": "2026-06"
+        },
+        "Gold": {
+            "model_file": "gold_model.joblib",
+            "feature_columns": [
+                "Gold_return_1m",
+                "Gold_return_3m",
+                "Gold_return_6m",
+                "Gold_vol_3m",
+                "GPR",
+                "GPR_change",
+                "GPR_lag1",
+                "GPR_lag3",
+                "GPRT",
+                "GPRA",
+                "DXY"
+            ],
+            "training_samples": 246,
+            "training_start": "2006-01",
+            "training_end": "2026-06"
+        },
+        "Copper": {
+            "model_file": "copper_model.joblib",
+            "feature_columns": [
+                "Copper_return_1m",
+                "Copper_return_3m",
+                "Copper_return_6m",
+                "Copper_vol_3m",
+                "GPR",
+                "GPR_change",
+                "GPR_lag1",
+                "GPR_lag3",
+                "GPRT",
+                "GPRA",
+                "DXY"
+            ],
+            "training_samples": 246,
+            "training_start": "2006-01",
+            "training_end": "2026-06"
+        },
+        "Wheat": {
+            "model_file": "wheat_model.joblib",
+            "feature_columns": [
+                "Wheat_return_1m",
+                "Wheat_return_3m",
+                "Wheat_return_6m",
+                "Wheat_vol_3m",
+                "GPR",
+                "GPR_change",
+                "GPR_lag1",
+                "GPR_lag3",
+                "GPRT",
+                "GPRA",
+                "DXY"
+            ],
+            "training_samples": 246,
+            "training_start": "2006-01",
+            "training_end": "2026-06"
+        }
+    }
+}

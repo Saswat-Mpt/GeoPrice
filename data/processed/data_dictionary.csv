@@ -1,0 +1,11 @@
+Variable,Source,Series_ID,Frequency,Transformation,Units,First_Valid_Date,Last_Valid_Date,Missing_Count
+Date,Canonical Grid,N/A,Monthly,Standardized PeriodIndex (YYYY-MM),ISO Date,1960-01,2026-08,0
+GPR,Caldara-Iacoviello,GPR,Monthly,None,Index (100 = 2000-2009 avg),1985-01,2026-07,301
+GPRT,Caldara-Iacoviello,GPRT / GPR_THREAT,Monthly,None,Index,1985-01,2026-07,301
+GPRA,Caldara-Iacoviello,GPRA / GPR_ACT,Monthly,None,Index,1985-01,2026-07,301
+Brent,World Bank / IMF,POILBREUSDM,Monthly,None,USD/barrel,1960-01,2026-07,1
+Natural_Gas,World Bank / IMF,PNGASUSUSDM,Monthly,None,USD/MMBtu (Henry Hub),1960-01,2026-07,1
+Gold,World Bank Pink Sheet,Monthly Prices (Col 69),Monthly,None,USD/troy oz,1960-01,2026-07,1
+Copper,World Bank / IMF,PCOPPUSDM,Monthly,None,USD/metric ton,1960-01,2026-07,1
+Wheat,World Bank / IMF,PWHEAMTUSDM,Monthly,None,USD/metric ton (US HRW),1979-01,2026-07,229
+DXY,FRED / Yahoo Finance,DTWEXBGS / DX-Y.NYB,Daily,Monthly arithmetic mean,Index,2001-08,2026-08,499

@@ -1,0 +1,28 @@
+Feature_Name,Group,Definition,Source,Window,Availability_Rule,Expected_Missingness
+GPR,Geopolitical,GPR level at month t (GPR_t),Caldara-Iacoviello,Current Month,Release-aware point-in-time,Missing pre-1985
+GPR_change,Geopolitical,Monthly GPR absolute change (GPR_t - GPR_(t-1)),Caldara-Iacoviello,1 Month,Release-aware point-in-time,First month NaN
+GPR_lag1,Geopolitical,GPR level at month t-1 (GPR_(t-1)),Caldara-Iacoviello,Lag-1,Release-aware point-in-time,First month NaN
+GPR_lag3,Geopolitical,GPR level at month t-3 (GPR_(t-3)),Caldara-Iacoviello,Lag-3,Release-aware point-in-time,First 3 months NaN
+GPRT,Geopolitical,Geopolitical Threats subindex level (GPRT_t),Caldara-Iacoviello,Current Month,Release-aware point-in-time,Missing pre-1985
+GPRA,Geopolitical,Geopolitical Acts subindex level (GPRA_t),Caldara-Iacoviello,Current Month,Release-aware point-in-time,Missing pre-1985
+DXY,Macro Control,Monthly arithmetic mean U.S. Dollar Index,FRED / Yahoo,Current Month,Point-in-time control,Missing pre-2001
+Brent_return_1m,Commodity History,1-month decimal return: P_t / P_(t-1) - 1 for Brent,World Bank / IMF,1 Month,Point-in-time price,First month NaN
+Brent_return_3m,Commodity History,3-month decimal return: P_t / P_(t-3) - 1 for Brent,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Brent_return_6m,Commodity History,6-month decimal return: P_t / P_(t-6) - 1 for Brent,World Bank / IMF,6 Months,Point-in-time price,First 6 months NaN
+Brent_vol_3m,Commodity History,3-month rolling std dev of 1M returns for Brent,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Natural_Gas_return_1m,Commodity History,1-month decimal return: P_t / P_(t-1) - 1 for Natural_Gas,World Bank / IMF,1 Month,Point-in-time price,First month NaN
+Natural_Gas_return_3m,Commodity History,3-month decimal return: P_t / P_(t-3) - 1 for Natural_Gas,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Natural_Gas_return_6m,Commodity History,6-month decimal return: P_t / P_(t-6) - 1 for Natural_Gas,World Bank / IMF,6 Months,Point-in-time price,First 6 months NaN
+Natural_Gas_vol_3m,Commodity History,3-month rolling std dev of 1M returns for Natural_Gas,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Gold_return_1m,Commodity History,1-month decimal return: P_t / P_(t-1) - 1 for Gold,World Bank / IMF,1 Month,Point-in-time price,First month NaN
+Gold_return_3m,Commodity History,3-month decimal return: P_t / P_(t-3) - 1 for Gold,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Gold_return_6m,Commodity History,6-month decimal return: P_t / P_(t-6) - 1 for Gold,World Bank / IMF,6 Months,Point-in-time price,First 6 months NaN
+Gold_vol_3m,Commodity History,3-month rolling std dev of 1M returns for Gold,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Copper_return_1m,Commodity History,1-month decimal return: P_t / P_(t-1) - 1 for Copper,World Bank / IMF,1 Month,Point-in-time price,First month NaN
+Copper_return_3m,Commodity History,3-month decimal return: P_t / P_(t-3) - 1 for Copper,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Copper_return_6m,Commodity History,6-month decimal return: P_t / P_(t-6) - 1 for Copper,World Bank / IMF,6 Months,Point-in-time price,First 6 months NaN
+Copper_vol_3m,Commodity History,3-month rolling std dev of 1M returns for Copper,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Wheat_return_1m,Commodity History,1-month decimal return: P_t / P_(t-1) - 1 for Wheat,World Bank / IMF,1 Month,Point-in-time price,First month NaN
+Wheat_return_3m,Commodity History,3-month decimal return: P_t / P_(t-3) - 1 for Wheat,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
+Wheat_return_6m,Commodity History,6-month decimal return: P_t / P_(t-6) - 1 for Wheat,World Bank / IMF,6 Months,Point-in-time price,First 6 months NaN
+Wheat_vol_3m,Commodity History,3-month rolling std dev of 1M returns for Wheat,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN

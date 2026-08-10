@@ -1,0 +1,6 @@
+Commodity,Total_N,Actual_Up_Pred_Up (TP),Actual_Down_Pred_Down (TN),Actual_Down_Pred_Up (FP),Actual_Up_Pred_Down (FN),Directional_Accuracy_Pct
+Brent,197,63,43,47,44,53.80710659898477
+Natural_Gas,195,42,51,52,50,47.69230769230769
+Gold,195,105,0,90,0,53.84615384615385
+Copper,197,69,37,59,32,53.80710659898477
+Wheat,198,59,42,66,31,51.010101010101
