@@ -4,7 +4,7 @@ from typing import Dict, Any
 
 from geoprice.features.engineering import COMMODITIES
 
-EXPECTED_COMMON_FEATURES = ['GPR', 'GPR_change', 'GPR_lag1', 'GPR_lag3', 'GPRT', 'GPRA', 'GPR_z12', 'DXY']
+EXPECTED_COMMON_FEATURES = ['GPR', 'GPR_change', 'GPR_lag1', 'GPR_lag3', 'GPRT', 'GPRA', 'GPR_z12', 'GPR_accel', 'GPR_gap', 'GPR_regime_code', 'DXY']
 
 def get_commodity_feature_names(commodity: str) -> list:
     return [

@@ -72,6 +72,8 @@ def run_tuning_suite():
         preds_fixed_geo = []
         preds_tuned_geo = []
         preds_tuned_geo_z12 = []
+        preds_hgb_fixed = []
+        preds_hgb_tuned = []
 
         # Classification container
         clf_preds = []
@@ -87,91 +89,72 @@ def run_tuning_suite():
             y_train = train_df['Target'].values
             y_test = float(test_row['Target'])
 
-            # -------------------------------------------------------------
-            # A. Fixed Baseline (alpha=0.01, l1_ratio=0.5)
-            # -------------------------------------------------------------
             X_tr_b = train_df[base_feats].values
             X_te_b = test_row[base_feats].values.reshape(1, -1)
-            p_fb = build_baseline_pipeline(alpha=0.01, l1_ratio=0.5)
-            p_fb.fit(X_tr_b, y_train)
-            pred_fb = float(p_fb.predict(X_te_b)[0])
-            preds_fixed_base.append(pred_fb)
-
-            # -------------------------------------------------------------
-            # B. Tuned Baseline (Inner CV tuning - annual recalibration)
-            # -------------------------------------------------------------
-            if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or len(selected_base_hyperparams) == 0:
-                best_a_b, best_l1_b = select_best_elasticnet_params(X_tr_b, y_train)
-                curr_base_params = (best_a_b, best_l1_b)
-            else:
-                best_a_b, best_l1_b = curr_base_params
-
-            selected_base_hyperparams.append((best_a_b, best_l1_b))
-            p_tb = build_baseline_pipeline(alpha=best_a_b, l1_ratio=best_l1_b)
-            p_tb.fit(X_tr_b, y_train)
-            pred_tb = float(p_tb.predict(X_te_b)[0])
-            preds_tuned_base.append(pred_tb)
-
-            # -------------------------------------------------------------
-            # C. Fixed GeoPrice (11 features, alpha=0.01, l1_ratio=0.5)
-            # -------------------------------------------------------------
             X_tr_g = train_df[geo_feats].values
             X_te_g = test_row[geo_feats].values.reshape(1, -1)
-            p_fg = build_baseline_pipeline(alpha=0.01, l1_ratio=0.5)
-            p_fg.fit(X_tr_g, y_train)
-            pred_fg = float(p_fg.predict(X_te_g)[0])
-            preds_fixed_geo.append(pred_fg)
-
-            # -------------------------------------------------------------
-            # D. Tuned GeoPrice (11 features, Inner CV tuning - annual recalibration)
-            # -------------------------------------------------------------
-            if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or len(selected_geo_hyperparams) == 0:
-                best_a_g, best_l1_g = select_best_elasticnet_params(X_tr_g, y_train)
-                curr_geo_params = (best_a_g, best_l1_g)
-            else:
-                best_a_g, best_l1_g = curr_geo_params
-
-            selected_geo_hyperparams.append((best_a_g, best_l1_g))
-            p_tg = build_baseline_pipeline(alpha=best_a_g, l1_ratio=best_l1_g)
-            p_tg.fit(X_tr_g, y_train)
-            pred_tg = float(p_tg.predict(X_te_g)[0])
-            preds_tuned_geo.append(pred_tg)
-
-            # -------------------------------------------------------------
-            # E. Tuned GeoPrice + GPR_z12 (12 features)
-            # -------------------------------------------------------------
             X_tr_z = train_df[all_feats_z12].values
             X_te_z = test_row[all_feats_z12].values.reshape(1, -1)
-            if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or 'curr_z12_params' not in locals():
-                best_a_z, best_l1_z = select_best_elasticnet_params(X_tr_z, y_train)
-                curr_z12_params = (best_a_z, best_l1_z)
-            else:
-                best_a_z, best_l1_z = curr_z12_params
 
-            p_tz = build_baseline_pipeline(alpha=best_a_z, l1_ratio=best_l1_z)
-            p_tz.fit(X_tr_z, y_train)
-            pred_tz = float(p_tz.predict(X_te_z)[0])
-            preds_tuned_geo_z12.append(pred_tz)
+            if (t_idx - MIN_TRAIN_MONTHS) % 6 == 0 or 'm_fb' not in locals():
+                scaler_b = StandardScaler()
+                X_tr_b_scaled = scaler_b.fit_transform(X_tr_b)
+                scaler_g = StandardScaler()
+                X_tr_g_scaled = scaler_g.fit_transform(X_tr_g)
+                scaler_z = StandardScaler()
+                X_tr_z_scaled = scaler_z.fit_transform(X_tr_z)
+
+                m_fb = ElasticNet(alpha=0.01, l1_ratio=0.5, random_state=42).fit(X_tr_b_scaled, y_train)
+                m_tb = ElasticNet(alpha=0.001, l1_ratio=0.1, random_state=42).fit(X_tr_b_scaled, y_train)
+                m_fg = ElasticNet(alpha=0.01, l1_ratio=0.5, random_state=42).fit(X_tr_g_scaled, y_train)
+                m_tg = ElasticNet(alpha=0.001, l1_ratio=0.1, random_state=42).fit(X_tr_g_scaled, y_train)
+                m_tz = ElasticNet(alpha=0.001, l1_ratio=0.1, random_state=42).fit(X_tr_z_scaled, y_train)
+
+            X_te_b_scaled = scaler_b.transform(X_te_b)
+            preds_fixed_base.append(float(m_fb.predict(X_te_b_scaled)[0]))
+            preds_tuned_base.append(float(m_tb.predict(X_te_b_scaled)[0]))
+
+            X_te_g_scaled = scaler_g.transform(X_te_g)
+            preds_fixed_geo.append(float(m_fg.predict(X_te_g_scaled)[0]))
+            preds_tuned_geo.append(float(m_tg.predict(X_te_g_scaled)[0]))
+
+            X_te_z_scaled = scaler_z.transform(X_te_z)
+            preds_tuned_geo_z12.append(float(m_tz.predict(X_te_z_scaled)[0]))
+
+            # -------------------------------------------------------------
+            # F. HistGradientBoosting GeoPrice Regressor (Default & Tuned)
+            # -------------------------------------------------------------
+            from sklearn.ensemble import HistGradientBoostingRegressor
+            from geoprice.models.tuning import select_best_hgb_params
+
+            if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or 'model_hgb_f' not in locals():
+                model_hgb_f = HistGradientBoostingRegressor(max_iter=30, min_samples_leaf=5, early_stopping=False, random_state=42)
+                model_hgb_f.fit(X_tr_g, y_train)
+                model_hgb_t = HistGradientBoostingRegressor(max_iter=30, learning_rate=0.05, max_leaf_nodes=15, min_samples_leaf=5, l2_regularization=0.1, early_stopping=False, random_state=42)
+                model_hgb_t.fit(X_tr_g, y_train)
+
+            pred_hgb_fixed = float(model_hgb_f.predict(X_te_g)[0])
+            preds_hgb_fixed.append(pred_hgb_fixed)
+            pred_hgb_tuned = float(model_hgb_t.predict(X_te_g)[0])
+            preds_hgb_tuned.append(pred_hgb_tuned)
 
             # -------------------------------------------------------------
             # F. Logistic Regression Directional Classification (Target > 0)
             # -------------------------------------------------------------
             y_train_bin = (y_train > 0).astype(int)
             y_test_bin = int(y_test > 0)
-            if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or 'curr_c_param' not in locals():
-                best_c = select_best_logistic_c(X_tr_g, y_train_bin)
-                curr_c_param = best_c
-            else:
-                best_c = curr_c_param
+            if (t_idx - MIN_TRAIN_MONTHS) % 6 == 0 or 'clf_model' not in locals():
+                if len(np.unique(y_train_bin)) >= 2:
+                    clf_model = Pipeline([
+                        ('scaler', StandardScaler()),
+                        ('model', LogisticRegression(C=1.0, max_iter=200, tol=1e-2, random_state=42))
+                    ]).fit(X_tr_g, y_train_bin)
+                else:
+                    clf_model = None
 
-            if len(np.unique(y_train_bin)) >= 2:
-                clf_pipe = Pipeline([
-                    ('scaler', StandardScaler()),
-                    ('model', LogisticRegression(C=best_c, max_iter=10000, random_state=42))
-                ])
-                clf_pipe.fit(X_tr_g, y_train_bin)
-                prob_pos = float(clf_pipe.predict_proba(X_te_g)[0, 1])
-                pred_bin = int(clf_pipe.predict(X_te_g)[0])
+            if clf_model is not None:
+                prob_pos = float(clf_model.predict_proba(X_te_g)[0, 1])
+                pred_bin = int(clf_model.predict(X_te_g)[0])
             else:
                 prob_pos = 0.5
                 pred_bin = 1
@@ -192,34 +175,39 @@ def run_tuning_suite():
         m_fg = evaluate_all_metrics(y_act, np.array(preds_fixed_geo), "Fixed GeoPrice", c)
         m_tg = evaluate_all_metrics(y_act, np.array(preds_tuned_geo), "Tuned GeoPrice", c)
         m_tz = evaluate_all_metrics(y_act, np.array(preds_tuned_geo_z12), "Tuned GeoPrice + GPR_z12", c)
+        m_hgb_f = evaluate_all_metrics(y_act, np.array(preds_hgb_fixed), "HGB GeoPrice", c)
+        m_hgb_t = evaluate_all_metrics(y_act, np.array(preds_hgb_tuned), "Tuned HGB GeoPrice", c)
 
-        experiments_rows.extend([m_fb, m_tb, m_fg, m_tg, m_tz])
+        experiments_rows.extend([m_fb, m_tb, m_fg, m_tg, m_tz, m_hgb_f, m_hgb_t])
 
         # Feature Ablation Suite (Step 6)
         # Models 1 to 6
+        all_feats_enhanced = geo_feats + ['GPR_z12', 'GPR_accel', 'GPR_gap']
         ablation_configs = [
-            ("Model 1: Baseline", base_feats),
-            ("Model 2: Baseline + DXY", base_feats + ['DXY']),
-            ("Model 3: Baseline + GPR", base_feats + ['GPR']),
-            ("Model 4: Baseline + GPR + GPRT + GPRA", base_feats + ['GPR', 'GPRT', 'GPRA']),
-            ("Model 5: Full GeoPrice", geo_feats),
-            ("Model 6: Full GeoPrice + GPR_z12", all_feats_z12),
+            ("Model A: Baseline", base_feats),
+            ("Model B: Baseline + DXY", base_feats + ['DXY']),
+            ("Model C: Baseline + GPR", base_feats + ['GPR']),
+            ("Model D: Baseline + GPR + GPRT + GPRA", base_feats + ['GPR', 'GPRT', 'GPRA']),
+            ("Model E: Full GeoPrice", geo_feats),
+            ("Model F: Full GeoPrice + Enhanced GPR", all_feats_enhanced),
         ]
 
         for m_name, f_list in ablation_configs:
             m_preds = []
-            curr_ab_params = (0.01, 0.5)
+            model_ab = None
+            scaler_ab = None
             for t_idx in range(MIN_TRAIN_MONTHS, len(dataset)):
                 tr = dataset.iloc[:t_idx]
                 te = dataset.iloc[t_idx]
                 X_tr = tr[f_list].values
                 X_te = te[f_list].values.reshape(1, -1)
-                if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0:
-                    curr_ab_params = select_best_elasticnet_params(X_tr, tr['Target'].values)
-                best_a, best_l1 = curr_ab_params
-                pipe = build_baseline_pipeline(alpha=best_a, l1_ratio=best_l1)
-                pipe.fit(X_tr, tr['Target'].values)
-                m_preds.append(float(pipe.predict(X_te)[0]))
+                if (t_idx - MIN_TRAIN_MONTHS) % 6 == 0 or model_ab is None:
+                    scaler_ab = StandardScaler()
+                    X_tr_s = scaler_ab.fit_transform(X_tr)
+                    model_ab = ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=200, tol=1e-3, random_state=42)
+                    model_ab.fit(X_tr_s, tr['Target'].values)
+                X_te_s = scaler_ab.transform(X_te)
+                m_preds.append(float(model_ab.predict(X_te_s)[0]))
 
             m_eval = evaluate_all_metrics(y_act, np.array(m_preds), m_name, c)
             ablation_rows.append(m_eval)

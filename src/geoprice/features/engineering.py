@@ -61,6 +61,23 @@ def create_geopolitical_features(df: pd.DataFrame, release_lag_months: int = 0) 
     rolling_std_12 = gpr_series.rolling(window=12, min_periods=12).std(ddof=1)
     res['GPR_z12'] = (gpr_series - rolling_mean_12) / rolling_std_12
     
+    # GPR acceleration (second difference: GPR_change_t - GPR_change_(t-1))
+    res['GPR_accel'] = res['GPR_change'] - res['GPR_change'].shift(1)
+    
+    # Threat/Act gap (GPRT_t - GPRA_t)
+    res['GPR_gap'] = res['GPRT'] - res['GPRA']
+    
+    # Trailing GPR Regime Code (LOW: 0, MODERATE: 1, HIGH: 2, EXTREME: 3)
+    p50_rolling = gpr_series.rolling(window=120, min_periods=36).quantile(0.50)
+    p75_rolling = gpr_series.rolling(window=120, min_periods=36).quantile(0.75)
+    p90_rolling = gpr_series.rolling(window=120, min_periods=36).quantile(0.90)
+    
+    reg_code = pd.Series(1, index=df.index)
+    reg_code[gpr_series < p50_rolling] = 0
+    reg_code[gpr_series >= p75_rolling] = 2
+    reg_code[gpr_series >= p90_rolling] = 3
+    res['GPR_regime_code'] = reg_code
+    
     return res
 
 def create_macro_control_feature(df: pd.DataFrame, release_lag_months: int = 0) -> pd.DataFrame:

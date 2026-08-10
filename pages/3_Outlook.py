@@ -88,6 +88,15 @@ if "Current Outlook" in selected_mode:
         else:
             st.warning(f"⚡ **EVIDENCE DIVERGENCE**: Historical regime response suggests **{hist_dir}** ({m1_ret:+.2f}%), while GeoPrice ML estimate predicts **{ml_dir}** ({forecast['predicted_return_pct']:+.2f}%).")
 
+        # Model Comparison Table Section
+        comp_file = "outputs/phase3/tuning_experiments_comparison.csv"
+        if os.path.exists(comp_file):
+            comp_df = pd.read_csv(comp_file)
+            c_comp = comp_df[comp_df['Commodity'] == selected_commodity].copy()
+            if len(c_comp) > 0:
+                st.subheader(f"Model Performance Benchmarks for {selected_commodity}")
+                st.dataframe(c_comp[['Model', 'N', 'MAE', 'RMSE', 'Directional_Accuracy']], use_container_width=True)
+
         st.markdown("---")
 
         # 3. Model Interpretation (Stage 12 beta * z)

@@ -12,7 +12,7 @@ from geoprice.models.baseline import (
 )
 from geoprice.models.metrics import evaluate_all_metrics
 
-from geoprice.constants import GEOPOLITICAL_FEATURES, MACRO_FEATURES
+from geoprice.constants import GEOPOLITICAL_FEATURES, ENHANCED_GEOPOLITICAL_FEATURES, MACRO_FEATURES
 
 COMMON_GEOPOLITICAL_FEATURES = list(GEOPOLITICAL_FEATURES)
 MACRO_CONTROL_FEATURES = list(MACRO_FEATURES)
@@ -21,6 +21,11 @@ def get_geoprice_feature_names(commodity: str) -> List[str]:
     """Returns the full 11-feature list for GeoPrice model (4 commodity history + 6 GPR + 1 DXY)."""
     comm_feats = get_baseline_feature_names(commodity)
     return comm_feats + COMMON_GEOPOLITICAL_FEATURES + MACRO_CONTROL_FEATURES
+
+def get_enhanced_geoprice_feature_names(commodity: str) -> List[str]:
+    """Returns 15-feature list for Enhanced GeoPrice models."""
+    comm_feats = get_baseline_feature_names(commodity)
+    return comm_feats + list(ENHANCED_GEOPOLITICAL_FEATURES) + MACRO_CONTROL_FEATURES
 
 def get_gpr_only_feature_names(commodity: str) -> List[str]:
     """Returns 5-feature list for GPR-only ablation model (4 commodity history + 1 GPR)."""
