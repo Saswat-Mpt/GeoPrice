@@ -16,10 +16,10 @@ Phase 3 evaluated out-of-sample monthly commodity return predictions using **exp
 | **Wheat** | 5.27% | 5.37% | -1.88% | 56.3% | 49.2% | -7.1 pts |
 
 ## 3. Key Data-Driven & Methodological Conclusions
-1. **Gold**: Gold showed a marginal reduction in out-of-sample MAE relative to the baseline (2.84% vs 2.86%), but the difference is minor (0.02 percentage points) and should not be interpreted as strong evidence of incremental predictive power.
-2. **Wheat**: Wheat produced nearly identical MAE for Baseline (5.30%) and GeoPrice (5.30%), with a marginal directional accuracy difference (+0.5 pts).
-3. **Commodity-Dependent Sensitivity**: Price history dominates short-term return error magnitudes for Brent Oil, Natural Gas, and Copper. Geopolitical features add variance without consistently reducing MAE across energy and industrial metals.
-4. **Final Production Model Selection**: ElasticNet was retained as the final forecasting framework. HistGradientBoosting (HGB) was evaluated as a nonlinear alternative but did not outperform tuned ElasticNet under walk-forward validation.
+1. **Gold**: GeoPrice produced a marginally lower OOS MAE than the tuned baseline (2.852% vs 2.854%), but the difference was extremely small (0.002 percentage points) and not statistically significant under paired bootstrap error analysis.
+2. **Brent Oil**: Brent showed the clearest directional improvement, with GeoPrice increasing OOS directional accuracy by 2.0 percentage points (55.8% vs 53.8%) over the tuned baseline, though the error difference is within sampling noise bounds.
+3. **Commodity-Dependent Sensitivity**: Price history dominates short-term return error magnitudes for Natural Gas, Copper, and Wheat. Geopolitical risk features add variance without reducing error magnitudes for agricultural and regional gas commodities.
+4. **Final Production Model Selection**: ElasticNet was retained as the final production forecasting framework (`models/*.joblib`). HistGradientBoosting (HGB) was evaluated as a nonlinear alternative but did not outperform tuned ElasticNet under walk-forward validation.
 5. **Regime Robustness**: Forecast error levels were naturally higher during elevated GPR regimes across commodities due to heightened market volatility.
 
 ## 4. Phase 3 Status

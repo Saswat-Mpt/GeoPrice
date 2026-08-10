@@ -185,7 +185,7 @@ def test_paired_error_uncertainty_structure():
         assert r["CI_95_Lower"] <= r["Mean_Paired_Diff"] <= r["CI_95_Upper"], "Mean paired difference must fall within 95% CI bounds"
 
 def test_production_model_uses_tuned_parameters():
-    """Tests that production models use tuned hyperparameters recorded in model_metadata.json."""
+    """Tests that production .joblib models match tuned hyperparameters recorded in model_metadata.json."""
     meta_path = "models/model_metadata.json"
     assert os.path.exists(meta_path), "model_metadata.json missing"
     with open(meta_path) as f:
@@ -195,3 +195,18 @@ def test_production_model_uses_tuned_parameters():
         c_meta = meta["commodities"][c]
         assert "selected_alpha" in c_meta and c_meta["selected_alpha"] in ALPHA_GRID
         assert "selected_l1_ratio" in c_meta and c_meta["selected_l1_ratio"] in L1_RATIO_GRID
+        
+        # Verify actual joblib model attributes match metadata
+        pipeline = joblib.load(f"models/{c.lower()}_model.joblib")
+        model = pipeline.named_steps['model']
+        assert model.alpha == c_meta["selected_alpha"], f"Joblib alpha mismatch for {c}"
+        assert model.l1_ratio == c_meta["selected_l1_ratio"], f"Joblib l1_ratio mismatch for {c}"
+
+def test_stage_09_validation_checks_pass():
+    """Tests that Stage 9 validation report JSON outputs all_required_checks_passed: true."""
+    val_path = "outputs/phase3/phase3_validation.json"
+    assert os.path.exists(val_path), "phase3_validation.json missing"
+    with open(val_path) as f:
+        val = json.load(f)
+    assert val.get("all_required_checks_passed") is True, f"Validation checks failed: {val}"
+    assert val.get("production_model_matches_selected_model") is True, "Production model metadata check failed"

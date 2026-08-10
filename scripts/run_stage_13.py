@@ -43,21 +43,19 @@ def run_phase_4_final_summary(test_pass_count: int):
         curr_reg = cdata['current_GPR_regime']
         curr_date = cdata['current_date']
     # Load model evaluation metrics dynamically
-    if os.path.exists("data/processed/final_model_comparison.csv"):
-        comp_df = pd.read_csv("data/processed/final_model_comparison.csv")
-        gold_geo_rows = comp_df[(comp_df['Commodity']=='Gold') & (comp_df['Model'].isin(['GeoPrice', 'GeoPrice Model']))]
-        gold_base_rows = comp_df[(comp_df['Commodity']=='Gold') & (comp_df['Model'].isin(['ElasticNet Baseline', 'Baseline']))]
-        gold_geo = gold_geo_rows['MAE'].values[0] * 100 if len(gold_geo_rows) > 0 else 2.85
-        gold_base = gold_base_rows['MAE'].values[0] * 100 if len(gold_base_rows) > 0 else 2.85
+    if not os.path.exists("data/processed/final_model_comparison.csv"):
+        raise FileNotFoundError("data/processed/final_model_comparison.csv missing! Run Stage 9 first.")
+        
+    comp_df = pd.read_csv("data/processed/final_model_comparison.csv")
+    gold_geo_rows = comp_df[(comp_df['Commodity']=='Gold') & (comp_df['Model'].isin(['GeoPrice', 'GeoPrice Model']))]
+    gold_base_rows = comp_df[(comp_df['Commodity']=='Gold') & (comp_df['Model'].isin(['ElasticNet Baseline', 'Baseline']))]
+    if len(gold_geo_rows) == 0 or len(gold_base_rows) == 0:
+        raise ValueError("Gold metrics missing from final_model_comparison.csv")
+        
+    gold_geo = gold_geo_rows['MAE'].values[0] * 100
+    gold_base = gold_base_rows['MAE'].values[0] * 100
 
-        wheat_geo_rows = comp_df[(comp_df['Commodity']=='Wheat') & (comp_df['Model'].isin(['GeoPrice', 'GeoPrice Model']))]
-        wheat_base_rows = comp_df[(comp_df['Commodity']=='Wheat') & (comp_df['Model'].isin(['ElasticNet Baseline', 'Baseline']))]
-        wheat_geo = wheat_geo_rows['MAE'].values[0] * 100 if len(wheat_geo_rows) > 0 else 5.37
-        wheat_base = wheat_base_rows['MAE'].values[0] * 100 if len(wheat_base_rows) > 0 else 5.27
-
-        stage9_desc = f"Geopolitical features provide commodity-dependent incremental information, with improvements concentrated in Brent Oil and Gold, while price history dominates short-term return error magnitudes for Natural Gas, Copper, and Wheat."
-    else:
-        stage9_desc = "Geopolitical features provide commodity-dependent incremental information."
+    stage9_desc = "Geopolitical features provide commodity-dependent incremental information, with improvements concentrated in Brent Oil and Gold, while price history dominates short-term return error magnitudes for Natural Gas, Copper, and Wheat."
 
     summary_md = f"""# GeoPrice — Final Project Summary & Master Architecture Report
 

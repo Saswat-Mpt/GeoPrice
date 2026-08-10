@@ -14,9 +14,10 @@ def main():
         ("Phase 2, Stage 4 (Threats vs Acts Analysis)", "scripts/run_stage_04_threats_acts.py"),
         ("Phase 2, Stage 5 (GPR Regimes & Analogue)", "scripts/run_stage_05_regimes.py"),
         ("Phase 2, Stage 6 (Major Conflict Cases)", "scripts/run_stage_06_conflicts.py"),
-        ("Phase 3, Stage 7 (Baseline Forecasting)", "scripts/run_stage_07_baseline.py"),
-        ("Phase 3, Stage 8 (GeoPrice Model Forecasting)", "scripts/run_stage_08_geoprice.py"),
-        ("Phase 3, Stage 9 (Final Model Evaluation)", "scripts/run_stage_09_evaluation.py")
+        ("Phase 3, Stage 7 (Baseline Forecasting Benchmark)", "scripts/run_stage_07_baseline.py"),
+        ("Phase 3, Stage 8 (GeoPrice Model Benchmark)", "scripts/run_stage_08_geoprice.py"),
+        ("Phase 3, Stage 9 (Tuned Out-of-Sample Experiments)", "scripts/run_experiments_tuning.py"),
+        ("Phase 3, Stage 9 (Final Evaluation & Checkpoint)", "scripts/run_stage_09_evaluation.py")
     ]
 
     for name, script_path in stages:
