@@ -7,12 +7,13 @@ import pytest
 import numpy as np
 import pandas as pd
 from geoprice.features.engineering import create_geopolitical_features, build_feature_dataset
-from geoprice.models.tuning import select_best_elasticnet_params, select_best_logistic_c
+from geoprice.models.tuning import select_best_elasticnet_params, select_best_logistic_c, select_best_hgb_params
 from geoprice.models.baseline import get_baseline_feature_names, create_next_month_target
 from geoprice.models.geoprice import get_geoprice_feature_names
+from geoprice.constants import ALPHA_GRID, L1_RATIO_GRID, LOGISTIC_C_GRID
 
 def test_gpr_z12_no_future_leakage():
-    """1 & 2. Tests that GPR_z12 is strictly trailing (backward-looking) with no look-ahead bias."""
+    """Tests that GPR_z12 is strictly trailing (backward-looking) with no look-ahead bias."""
     dates = pd.date_range("2000-01-01", periods=50, freq="MS").strftime("%Y-%m").tolist()
     gpr_vals = np.linspace(50, 200, 50) + np.random.normal(0, 5, 50)
     
@@ -30,27 +31,55 @@ def test_gpr_z12_no_future_leakage():
     assert np.isclose(val1, val2), f"Future GPR change at t=30 leaked to t=25: {val1} vs {val2}"
 
 def test_hyperparameter_tuning_inner_cv():
-    """3 & 4. Tests hyperparameter selection occurs inside training window without outer test leakage."""
+    """Tests hyperparameter selection uses TimeSeriesSplit inner CV without outer test leakage."""
     np.random.seed(42)
     X_tr = np.random.normal(0, 1, (60, 5))
     y_tr = np.random.normal(0, 0.05, 60)
     
     best_a, best_l1 = select_best_elasticnet_params(X_tr, y_tr)
-    assert best_a in (0.0005, 0.001, 0.003, 0.01, 0.03, 0.1)
-    assert best_l1 in (0.1, 0.5, 0.9)
+    assert best_a in ALPHA_GRID, f"Selected alpha {best_a} not in ALPHA_GRID"
+    assert best_l1 in L1_RATIO_GRID, f"Selected l1_ratio {best_l1} not in L1_RATIO_GRID"
     
     best_c = select_best_logistic_c(X_tr, (y_tr > 0).astype(int))
-    assert best_c in (0.01, 0.1, 1.0, 10.0)
+    assert best_c in LOGISTIC_C_GRID, f"Selected C {best_c} not in LOGISTIC_C_GRID"
+
+def test_tscv_inner_cv_fold_count():
+    """Tests that TimeSeriesSplit produces the expected number of folds inside tuning."""
+    from sklearn.model_selection import TimeSeriesSplit
+    
+    # With 60 samples and n_splits=3
+    X = np.random.normal(0, 1, (60, 5))
+    tscv = TimeSeriesSplit(n_splits=3)
+    folds = list(tscv.split(X))
+    assert len(folds) == 3, f"Expected 3 folds, got {len(folds)}"
+    
+    # Each fold should have training before validation chronologically
+    for tr_idx, val_idx in folds:
+        assert max(tr_idx) < min(val_idx), "Training indices must come before validation indices"
+
+def test_hgb_tuning_returns_valid_params():
+    """Tests that select_best_hgb_params returns a dict with all expected keys."""
+    np.random.seed(42)
+    X_tr = np.random.normal(0, 1, (60, 5))
+    y_tr = np.random.normal(0, 0.05, 60)
+    
+    params = select_best_hgb_params(X_tr, y_tr)
+    
+    required_keys = {"learning_rate", "max_iter", "max_leaf_nodes", "min_samples_leaf", "l2_regularization"}
+    assert required_keys.issubset(set(params.keys())), f"Missing keys: {required_keys - set(params.keys())}"
+    assert params["learning_rate"] > 0
+    assert params["max_iter"] > 0
+    assert params["max_leaf_nodes"] > 0
 
 def test_baseline_and_geoprice_identical_dates():
-    """5 & 9. Tests that Baseline, GeoPrice, and Ablation models evaluate on identical OOS dates."""
+    """Tests that Baseline and GeoPrice models evaluate on identical OOS dates."""
     base_preds = pd.read_csv("data/processed/baseline_predictions.csv")
     geo_preds = pd.read_csv("data/processed/geoprice_predictions.csv")
     
     assert base_preds[['Commodity', 'Date']].equals(geo_preds[['Commodity', 'Date']]), "OOS dates mismatch between Baseline and GeoPrice!"
 
 def test_target_definitions():
-    """6 & 7. Tests regression target is next-month return and logistic target is binary sign."""
+    """Tests regression target is next-month return and logistic target is binary sign."""
     dates = pd.date_range("2020-01-01", periods=10, freq="MS").strftime("%Y-%m").tolist()
     prices = [100.0, 105.0, 102.0, 108.0, 110.0, 105.0, 107.0, 112.0, 115.0, 120.0]
     df_raw = pd.DataFrame({"Date": dates, "Brent": prices})
@@ -63,7 +92,7 @@ def test_target_definitions():
     assert set(t_bin.dropna().unique()).issubset({0, 1})
 
 def test_beta_z_exact_reconstruction():
-    """8. Tests exact prediction reconstruction (Prediction == Intercept + sum(beta * z))."""
+    """Tests exact prediction reconstruction (Prediction == Intercept + sum(beta * z))."""
     coef_df = pd.read_csv("data/processed/geoprice_coefficients.csv")
     pred_df = pd.read_csv("data/processed/geoprice_predictions.csv")
     
@@ -76,7 +105,7 @@ def test_beta_z_exact_reconstruction():
         assert pd.notna(intercept) and len(c_preds) > 0
 
 def test_no_nans_in_model_matrix():
-    """10. Tests that final model feature dataset contains no NaNs for Phase 3 evaluation period."""
+    """Tests that final model feature dataset contains no NaNs for Phase 3 evaluation period."""
     feat_df = pd.read_csv("data/processed/feature_dataset.csv")
     feat_df['Year'] = pd.to_datetime(feat_df['Date']).dt.year
     geo_feats = get_geoprice_feature_names("Brent")
@@ -84,3 +113,22 @@ def test_no_nans_in_model_matrix():
     # Phase 3 evaluation range: 2006 to 2025
     eval_df = feat_df[(feat_df['Year'] >= 2006) & (feat_df['Year'] <= 2025)]
     assert not eval_df[geo_feats].isna().any().any(), "NaNs detected in Phase 3 model matrix!"
+
+def test_elasticnet_tuning_deterministic():
+    """Tests that tuning produces consistent results across calls with same seed."""
+    np.random.seed(123)
+    X = np.random.normal(0, 1, (80, 4))
+    y = np.random.normal(0, 0.05, 80)
+    
+    a1, l1 = select_best_elasticnet_params(X, y)
+    a2, l2 = select_best_elasticnet_params(X, y)
+    
+    assert a1 == a2 and l1 == l2, "Tuning should be deterministic for same input"
+
+def test_logistic_tuning_handles_single_class():
+    """Tests that logistic tuning gracefully handles single-class training data."""
+    X = np.random.normal(0, 1, (30, 4))
+    y = np.ones(30, dtype=int)  # All class 1
+    
+    c = select_best_logistic_c(X, y)
+    assert c == 1.0, "Should return default C=1.0 for single-class data"

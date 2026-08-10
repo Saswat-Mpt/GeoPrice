@@ -20,7 +20,11 @@ PHASE 2: Descriptive Geopolitical Analysis & Historical Analogue
 PHASE 3: Classical Machine-Learning Forecasting & Validation
 ├── Stage 7: Baseline Commodity Return Forecasting (Price-history-only ElasticNet, expanding-window OOS CV)
 ├── Stage 8: GeoPrice Model Forecasting (11 features: 4 commodity history + 6 GPR + 1 DXY control)
-└── Stage 9: Final Model Evaluation & Validation (MAE/RMSE/DA comparison, GPR-only ablation, regime robustness)
+└── Stage 9: Model Selection & OOS Evaluation
+      ├── ElasticNet hyperparameter tuning (nested walk-forward TimeSeriesSplit inner CV)
+      ├── HistGradientBoosting comparison
+      ├── Feature ablation (GPR_z12, GPR_accel, GPR_gap)
+      └── Directional classification experiment
 
 PHASE 4: Production Pipeline, Interpretability & Streamlit Application
 ├── Stage 10: Production Pipeline & Inference Stack (Exported .joblib artifacts & model_metadata.json)

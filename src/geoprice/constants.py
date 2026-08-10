@@ -37,7 +37,6 @@ ENHANCED_GEOPOLITICAL_FEATURES = (
     "GPR_z12",
     "GPR_accel",
     "GPR_gap",
-    "GPR_regime_code",
 )
 
 MACRO_FEATURES = (
@@ -49,6 +48,6 @@ MIN_TRAIN_MONTHS = 48
 GPR_SHOCK_QUANTILE = 0.90
 
 # Hyperparameter Tuning Candidate Grids
-ALPHA_GRID = (0.001, 0.01, 0.1)
+ALPHA_GRID = (0.0005, 0.001, 0.003, 0.01, 0.03, 0.1)
 L1_RATIO_GRID = (0.1, 0.5, 0.9)
 LOGISTIC_C_GRID = (0.01, 0.1, 1.0, 10.0)
