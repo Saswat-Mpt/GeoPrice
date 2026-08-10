@@ -3,11 +3,11 @@ GeoPrice Out-of-Sample Walk-Forward Evaluation & Feature Ablation.
 
 Every OOS forecast month:
   1. Train = all observations before t
-  2. Inner TimeSeriesSplit CV selects hyperparameters (tuned models only)
+  2. Hyperparameters recalibrated annually (every 12 months) via inner TimeSeriesSplit CV
   3. Refit final model on full training window
   4. Predict month t
 
-No model caching. No stale predictions. No hardcoded hyperparameters for "tuned" models.
+No model caching. No stale predictions. Fully auditable annual hyperparameter logs.
 """
 
 import sys
@@ -49,7 +49,7 @@ def _fit_predict_elasticnet(X_train, y_train, X_test, alpha, l1_ratio):
 
 def run_tuning_suite():
     print("=" * 80)
-    print("Running GeoPrice — Walk-Forward OOS Evaluation (Nested TimeSeriesSplit CV)")
+    print("Running GeoPrice — Walk-Forward OOS Evaluation (Annual Hyperparameter Recalibration)")
     print("=" * 80)
 
     feature_path = "data/processed/feature_dataset.csv"
@@ -71,7 +71,7 @@ def run_tuning_suite():
 
         # Feature sets
         base_feats = get_baseline_feature_names(c)
-        geo_feats = get_geoprice_feature_names(c)  # 11 features (original GeoPrice)
+        geo_feats = get_geoprice_feature_names(c)  # 11 features (canonical GeoPrice)
 
         # Prepare data
         df_f = df_feat.copy()
@@ -113,12 +113,29 @@ def run_tuning_suite():
             X_te_g = test_row[geo_feats].values.reshape(1, -1)
 
             # Re-tune hyperparameters annually (every 12 months) strictly on past training data
-            if (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or 'best_a_b' not in locals():
+            is_recalib = (t_idx - MIN_TRAIN_MONTHS) % 12 == 0 or 'best_a_b' not in locals()
+            if is_recalib:
                 best_a_b, best_l1_b = select_best_elasticnet_params(X_tr_b, y_train)
                 best_a_g, best_l1_g = select_best_elasticnet_params(X_tr_g, y_train)
                 best_hgb = select_best_hgb_params(X_tr_g, y_train)
                 y_train_bin = (y_train > 0).astype(int)
                 best_c = select_best_logistic_c(X_tr_g, y_train_bin)
+
+                # Log hyperparameter recalibration event
+                selected_params_log.append({
+                    "Commodity": c,
+                    "Recalibration_Step": (t_idx - MIN_TRAIN_MONTHS) // 12 + 1,
+                    "OOS_Index": t_idx - MIN_TRAIN_MONTHS,
+                    "Date": forecast_date,
+                    "Baseline_alpha": best_a_b,
+                    "Baseline_l1": best_l1_b,
+                    "GeoPrice_alpha": best_a_g,
+                    "GeoPrice_l1": best_l1_g,
+                    "HGB_lr": best_hgb.get("learning_rate"),
+                    "HGB_max_iter": best_hgb.get("max_iter"),
+                    "HGB_max_leaf": best_hgb.get("max_leaf_nodes"),
+                    "LogReg_C": best_c,
+                })
 
             # -----------------------------------------------------------
             # 1. Fixed Baseline (alpha=0.01, l1_ratio=0.5)
@@ -163,7 +180,7 @@ def run_tuning_suite():
             preds_hgb_tuned.append(float(model_hgb_t.predict(X_te_g)[0]))
 
             # -----------------------------------------------------------
-            # 7. Logistic Regression Directional (refit every month)
+            # 7. Logistic Regression Directional (refit every month, tol=1e-4)
             # -----------------------------------------------------------
             y_train_bin = (y_train > 0).astype(int)
             y_test_bin = int(y_test > 0)
@@ -171,7 +188,7 @@ def run_tuning_suite():
             if len(np.unique(y_train_bin)) >= 2:
                 clf_pipe = Pipeline([
                     ('scaler', StandardScaler()),
-                    ('model', LogisticRegression(C=best_c, max_iter=200, tol=1e-2, random_state=42))
+                    ('model', LogisticRegression(C=best_c, max_iter=200, tol=1e-4, random_state=42))
                 ])
                 clf_pipe.fit(X_tr_g, y_train_bin)
                 prob_pos = float(clf_pipe.predict_proba(X_te_g)[0, 1])
@@ -187,22 +204,6 @@ def run_tuning_suite():
                 "Predicted_Direction": pred_bin,
                 "Predicted_Probability": prob_pos
             })
-
-            # Log selected hyperparameters for first and last OOS month
-            if t_idx == MIN_TRAIN_MONTHS or t_idx == len(dataset) - 1:
-                selected_params_log.append({
-                    "Commodity": c,
-                    "OOS_Index": t_idx - MIN_TRAIN_MONTHS,
-                    "Date": forecast_date,
-                    "Baseline_alpha": best_a_b,
-                    "Baseline_l1": best_l1_b,
-                    "GeoPrice_alpha": best_a_g,
-                    "GeoPrice_l1": best_l1_g,
-                    "HGB_lr": best_hgb.get("learning_rate"),
-                    "HGB_max_iter": best_hgb.get("max_iter"),
-                    "HGB_max_leaf": best_hgb.get("max_leaf_nodes"),
-                    "LogReg_C": best_c,
-                })
 
             # Progress indicator every 50 steps
             oos_step = t_idx - MIN_TRAIN_MONTHS
@@ -225,19 +226,15 @@ def run_tuning_suite():
 
         # ---------------------------------------------------------------
         # Feature Ablation Suite (fixed ElasticNet alpha=0.01, l1=0.5)
-        # Same model spec, different feature sets → isolates feature value
+        # Identical OOS Date Set across Models A to F
         # ---------------------------------------------------------------
-        # Enhanced features for ablation
         ablation_enhanced_feats = geo_feats + ['GPR_z12', 'GPR_accel', 'GPR_gap']
+        available_enhanced = [f for f in ablation_enhanced_feats if f in phase3_data.columns]
 
-        # Check which enhanced features are available
-        available_enhanced = [f for f in ablation_enhanced_feats if f in dataset.columns]
-        if len(available_enhanced) < len(ablation_enhanced_feats):
-            # Recheck with the full dataset that includes enhanced features
-            valid_mask_enh = phase3_data[available_enhanced].notna().all(axis=1) & phase3_data['Target'].notna()
-            dataset_enh = phase3_data[valid_mask_enh].copy().reset_index(drop=True)
-        else:
-            dataset_enh = dataset
+        # Construct common valid mask across all feature sets in ablation
+        all_ablation_cols = available_enhanced + ['Target']
+        common_valid_mask = phase3_data[all_ablation_cols].notna().all(axis=1)
+        dataset_abl = phase3_data[common_valid_mask].copy().reset_index(drop=True)
 
         ablation_configs = [
             ("Model A: Baseline", base_feats),
@@ -248,31 +245,19 @@ def run_tuning_suite():
             ("Model F: GeoPrice + GPR_z12 + GPR_accel + GPR_gap", available_enhanced),
         ]
 
+        y_act_abl = dataset_abl.iloc[MIN_TRAIN_MONTHS:]['Target'].values
+
         for m_name, f_list in ablation_configs:
-            # Verify features exist
-            missing = [f for f in f_list if f not in dataset_enh.columns]
-            if missing:
-                print(f"  [SKIP] {m_name}: missing features {missing}")
-                continue
-
-            abl_valid = dataset_enh[f_list].notna().all(axis=1) & dataset_enh['Target'].notna()
-            abl_data = dataset_enh[abl_valid].copy().reset_index(drop=True)
-
-            if len(abl_data) <= MIN_TRAIN_MONTHS + 1:
-                print(f"  [SKIP] {m_name}: insufficient data")
-                continue
-
             abl_preds = []
-            for t_idx in range(MIN_TRAIN_MONTHS, len(abl_data)):
-                tr = abl_data.iloc[:t_idx]
-                te = abl_data.iloc[t_idx]
+            for t_idx in range(MIN_TRAIN_MONTHS, len(dataset_abl)):
+                tr = dataset_abl.iloc[:t_idx]
+                te = dataset_abl.iloc[t_idx]
                 pred = _fit_predict_elasticnet(
                     tr[f_list].values, tr['Target'].values,
                     te[f_list].values.reshape(1, -1), 0.01, 0.5
                 )
                 abl_preds.append(pred)
 
-            y_act_abl = abl_data.iloc[MIN_TRAIN_MONTHS:]['Target'].values
             m_eval = evaluate_all_metrics(y_act_abl, np.array(abl_preds), m_name, c)
             ablation_rows.append(m_eval)
 
@@ -322,8 +307,8 @@ def run_tuning_suite():
     print("WALK-FORWARD OOS EVALUATION COMPLETE")
     print("=" * 80)
     print(df_exp[['Commodity', 'Model', 'N', 'MAE', 'RMSE', 'Directional_Accuracy']].to_string(index=False))
-    print("\nSelected hyperparameters (first & last OOS month per commodity):")
-    print(df_params.to_string(index=False))
+    print("\nAnnual Hyperparameter Recalibration Log (sample):")
+    print(df_params.head(10).to_string(index=False))
 
 
 if __name__ == "__main__":

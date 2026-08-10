@@ -77,20 +77,22 @@ python -m pytest tests/ -v
 
 ---
 
-## 📈 Key Out-of-Sample Performance Summary (Training: 2006+, OOS evaluation: ~2010-2026, N=197-198 per commodity)
+## 📈 Key Out-of-Sample Performance Summary (Data history: 2006+; first OOS evaluation after 48-month training window: 2010–2026, N=197-198 per commodity)
 
-| Commodity | Naive MAE | Baseline MAE | GeoPrice MAE | Naive DA | Baseline DA | GeoPrice DA | Key Finding |
+*Tuning Method: Annual hyperparameter recalibration via inner TimeSeriesSplit cross-validation; monthly model refitting and prediction.*
+
+| Commodity | Naive MAE | Tuned Baseline MAE | Tuned GeoPrice MAE | Tuned HGB MAE | Tuned Baseline DA | Tuned GeoPrice DA | Key Finding |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Brent** | 6.27% | **6.24%** | 6.30% | N/A | **55.3%** | 54.3% | Price history dominates short-term energy returns. |
-| **Natural Gas** | **9.29%** | 9.34% | 9.63% | N/A | 49.7% | **50.3%** | High volatility; GPR features add variance without error reduction. |
-| **Gold** | 2.84% | 2.86% | **2.84%** | N/A | **53.8%** | **53.8%** | **Full feature set reduced Gold's out-of-sample MAE by 0.61% vs baseline.** |
-| **Copper** | 3.65% | **3.59%** | 3.67% | N/A | 54.8% | **55.3%** | Industrial demand dynamics dominate short-term returns. |
-| **Wheat** | **5.28%** | 5.30% | 5.30% | N/A | 55.8% | **56.3%** | GeoPrice improves Directional Accuracy (+0.5 pts) and slightly improves MAE. |
+| **Brent** | 6.27% | 6.34% | **6.29%** | 6.34% | 53.8% | **55.8%** | Price history dominates error magnitude; GeoPrice offers directional signal. |
+| **Natural Gas** | **9.29%** | 9.30% | 9.31% | 9.84% | **52.8%** | 51.3% | High volatility; GPR features add variance without error reduction. |
+| **Gold** | 2.84% | 2.85% | **2.85%** | 2.87% | **53.8%** | **53.8%** | **Fixed GeoPrice yields marginal MAE reduction (2.84% vs 2.86% Baseline).** |
+| **Copper** | 3.65% | **3.58%** | 3.66% | 3.82% | **55.8%** | 53.8% | Industrial demand dynamics dominate short-term returns. |
+| **Wheat** | **5.28%** | 5.27% | 5.37% | 5.56% | **56.3%** | 49.2% | Baseline price history dominates short-term return forecasts. |
 
 *Note: Naive zero-return model predicts no direction, so Naive Directional Accuracy is marked as N/A.*
 
-### Conclusion on Forecasting Utility
-Geopolitical features did not provide consistent incremental forecasting value across all commodities. GeoPrice produced small MAE improvements for Gold and Wheat, while the price-history baseline remained superior for Brent, Natural Gas, and Copper.
+### Conclusion on Model Selection & Forecasting Utility
+ElasticNet was retained as the final production model. HistGradientBoosting (HGB) was evaluated as a nonlinear alternative under walk-forward validation but did not outperform tuned ElasticNet on MAE across any commodity. Geopolitical risk features provide modest directional information for Brent Oil and a marginal MAE reduction for Gold, while price history remains the primary driver of short-term return magnitudes.
 
 ---
 

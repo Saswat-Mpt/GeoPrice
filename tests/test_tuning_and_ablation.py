@@ -10,7 +10,7 @@ from geoprice.features.engineering import create_geopolitical_features, build_fe
 from geoprice.models.tuning import select_best_elasticnet_params, select_best_logistic_c, select_best_hgb_params
 from geoprice.models.baseline import get_baseline_feature_names, create_next_month_target
 from geoprice.models.geoprice import get_geoprice_feature_names
-from geoprice.constants import ALPHA_GRID, L1_RATIO_GRID, LOGISTIC_C_GRID
+from geoprice.constants import ALPHA_GRID, L1_RATIO_GRID, LOGISTIC_C_GRID, MIN_TRAIN_MONTHS
 
 def test_gpr_z12_no_future_leakage():
     """Tests that GPR_z12 is strictly trailing (backward-looking) with no look-ahead bias."""
@@ -132,3 +132,26 @@ def test_logistic_tuning_handles_single_class():
     
     c = select_best_logistic_c(X, y)
     assert c == 1.0, "Should return default C=1.0 for single-class data"
+
+def test_oos_prediction_is_strictly_after_training_window():
+    """Tests that for every expanding-window split, max(train_date) < test_date."""
+    feat_df = pd.read_csv("data/processed/feature_dataset.csv")
+    feat_df['Year'] = pd.to_datetime(feat_df['Date']).dt.year
+    geo_feats = get_geoprice_feature_names("Brent")
+    
+    phase3_df = feat_df[feat_df['Year'] >= 2006].copy().reset_index(drop=True)
+    valid_df = phase3_df[phase3_df[geo_feats].notna().all(axis=1)].copy().reset_index(drop=True)
+    
+    for t_idx in range(MIN_TRAIN_MONTHS, len(valid_df)):
+        train_dates = valid_df.iloc[:t_idx]['Date'].values
+        test_date = valid_df.iloc[t_idx]['Date']
+        assert max(train_dates) < test_date, f"Training date leak detected! {max(train_dates)} is not strictly before {test_date}"
+
+def test_ablation_models_share_oos_dates():
+    """Tests that all 6 feature ablation models share 100% identical OOS prediction counts."""
+    abl_df = pd.read_csv("outputs/phase3/feature_ablation.csv")
+    
+    for c in ["Brent", "Natural_Gas", "Gold", "Copper", "Wheat"]:
+        c_abl = abl_df[abl_df['Commodity'] == c]
+        n_counts = c_abl['N'].unique()
+        assert len(n_counts) == 1, f"Ablation model sample size mismatch for {c}: {n_counts}"

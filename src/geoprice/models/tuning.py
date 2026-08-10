@@ -13,9 +13,6 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.model_selection import TimeSeriesSplit
 from geoprice.constants import ALPHA_GRID, L1_RATIO_GRID, LOGISTIC_C_GRID
 
-import warnings
-warnings.filterwarnings("ignore")
-
 
 def select_best_elasticnet_params(
     X_train: np.ndarray,
@@ -102,7 +99,7 @@ def select_best_logistic_c(
             X_in_tr_s = scaler.fit_transform(X_in_tr)
             X_in_val_s = scaler.transform(X_in_val)
 
-            clf = LogisticRegression(C=c_val, max_iter=200, tol=1e-2, random_state=42)
+            clf = LogisticRegression(C=c_val, max_iter=200, tol=1e-4, random_state=42)
             clf.fit(X_in_tr_s, y_in_tr)
             y_pred = clf.predict(X_in_val_s)
             fold_scores.append(balanced_accuracy_score(y_in_val, y_pred))
@@ -124,8 +121,8 @@ def select_best_hgb_params(
 ) -> Dict[str, Any]:
     """
     Inner chronological cross-validation using TimeSeriesSplit to select optimal
-    HistGradientBoostingRegressor hyperparameters. Uses a deliberately small
-    candidate grid (~14 configurations) for explainability.
+    HistGradientBoostingRegressor hyperparameters. Uses a candidate grid of 6 representative
+    configurations for explainability and fast evaluation.
 
     Returns dict of best hyperparameters selected by lowest mean validation MAE.
     """
@@ -142,7 +139,9 @@ def select_best_hgb_params(
 
     grid = [
         {"learning_rate": 0.03, "max_iter": 50,  "max_leaf_nodes": 7,  "min_samples_leaf": 20, "l2_regularization": 0.1},
+        {"learning_rate": 0.03, "max_iter": 100, "max_leaf_nodes": 15, "min_samples_leaf": 20, "l2_regularization": 1.0},
         {"learning_rate": 0.05, "max_iter": 50,  "max_leaf_nodes": 15, "min_samples_leaf": 10, "l2_regularization": 0.1},
+        {"learning_rate": 0.05, "max_iter": 100, "max_leaf_nodes": 7,  "min_samples_leaf": 20, "l2_regularization": 1.0},
         {"learning_rate": 0.05, "max_iter": 100, "max_leaf_nodes": 15, "min_samples_leaf": 20, "l2_regularization": 1.0},
         {"learning_rate": 0.10, "max_iter": 50,  "max_leaf_nodes": 31, "min_samples_leaf": 10, "l2_regularization": 0.0},
     ]
