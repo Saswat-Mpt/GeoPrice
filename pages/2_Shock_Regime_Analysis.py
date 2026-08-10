@@ -19,9 +19,40 @@ st.markdown("##### Historical Geopolitical Event Studies, Threat vs Act Differen
 
 st.markdown("---")
 
+import json
+
+# Dynamically load thresholds & metadata
+gpr_thresh = 36.14
+if os.path.exists("data/processed/gpr_shock_threshold.json"):
+    with open("data/processed/gpr_shock_threshold.json") as f:
+        gpr_thresh = json.load(f).get('threshold', 36.14)
+
+gprt_thresh = 46.59
+if os.path.exists("data/processed/gprt_shock_threshold.json"):
+    with open("data/processed/gprt_shock_threshold.json") as f:
+        gprt_thresh = json.load(f).get('threshold', 46.59)
+
+gpra_thresh = 36.33
+if os.path.exists("data/processed/gpra_shock_threshold.json"):
+    with open("data/processed/gpra_shock_threshold.json") as f:
+        gpra_thresh = json.load(f).get('threshold', 36.33)
+
+episodes_count = 17
+if os.path.exists("data/processed/shock_episodes.csv"):
+    episodes_df = pd.read_csv("data/processed/shock_episodes.csv")
+    episodes_count = len(episodes_df)
+
+start_date, end_date = "1992-01", "2026-06"
+if os.path.exists("data/processed/monthly_aligned.csv"):
+    df_aligned = pd.read_csv("data/processed/monthly_aligned.csv")
+    valid_df = df_aligned.dropna(subset=['GPR', 'Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat'])
+    if len(valid_df) > 0:
+        start_date = valid_df['Date'].iloc[0]
+        end_date = valid_df['Date'].iloc[-1]
+
 # 1. Systematic Shock Analysis
 st.subheader("1. Systematic GPR Shock Analysis (Phase 2 Stage 3)")
-st.write("Top-decile GPR increases ($\\Delta GPR_t = GPR_t - GPR_{t-1} \\ge 37.49$), collapsed into 21 non-overlapping episodes (1985–2026).")
+st.write(f"Top-decile GPR increases ($\\Delta GPR_t = GPR_t - GPR_{{t-1}} \\ge {gpr_thresh:.2f}$), collapsed into {episodes_count} non-overlapping episodes ({start_date} → {end_date}).")
 
 shock_sum_path = "data/processed/shock_summary.csv"
 if os.path.exists(shock_sum_path):
@@ -37,7 +68,7 @@ st.markdown("---")
 
 # 2. Threats vs Acts Comparison
 st.subheader("2. Geopolitical Threats (GPRT) vs Realized Acts (GPRA) Analysis (Stage 4)")
-st.write("Comparing commodity responses following Threat Shocks ($\\Delta GPRT \\ge 46.42$) versus Realized Act Shocks ($\\Delta GPRA \\ge 37.20$).")
+st.write(f"Comparing commodity responses following Threat Shocks ($\\Delta GPRT \\ge {gprt_thresh:.2f}$) versus Realized Act Shocks ($\\Delta GPRA \\ge {gpra_thresh:.2f}$).")
 
 ta_sum_path = "data/processed/threats_acts_summary.csv"
 if os.path.exists(ta_sum_path):
