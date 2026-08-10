@@ -46,18 +46,26 @@ def run_phase_2_checkpoint():
         gprt_meta = json.load(f)
     with open("data/processed/gpra_shock_threshold.json") as f:
         gpra_meta = json.load(f)
+    with open("data/processed/gpr_regime_thresholds.json") as f:
+        regime_thresh_data = json.load(f)
     with open("data/processed/current_gpr_regime.json") as f:
         regime_meta = json.load(f)
         
+    raw_shocks_df = pd.read_csv("data/processed/raw_gpr_shocks.csv")
     episodes_df = pd.read_csv("data/processed/shock_episodes.csv")
     t_episodes = pd.read_csv("data/processed/gprt_shock_episodes.csv")
     a_episodes = pd.read_csv("data/processed/gpra_shock_episodes.csv")
-    regime_episodes = pd.read_csv("data/processed/gpr_regime_episodes.csv")
+    analogue_df = pd.read_csv("data/processed/current_regime_analogue.csv")
     conflicts_df = pd.read_csv("data/processed/conflict_reference_cases.csv")
+    ta_sum = pd.read_csv("data/processed/threats_acts_summary.csv")
+
+    gold_act_3m = ta_sum[(ta_sum['Commodity'] == 'Gold') & (ta_sum['Subindex'] == 'GPRA') & (ta_sum['Horizon'] == '+3M')]['Median'].values[0] * 100
+    ng_act_3m = ta_sum[(ta_sum['Commodity'] == 'Natural_Gas') & (ta_sum['Subindex'] == 'GPRA') & (ta_sum['Horizon'] == '+3M')]['Median'].values[0] * 100
 
     phase2_val = {
         "stage3_gpr_shocks": True,
         "gpr_shock_threshold": gpr_meta['threshold'],
+        "raw_gpr_shocks_count": len(raw_shocks_df),
         "gpr_shock_episodes_count": len(episodes_df),
         "stage4_threats_acts": True,
         "gprt_threat_threshold": gprt_meta['threshold'],
@@ -67,9 +75,10 @@ def run_phase_2_checkpoint():
         "stage5_gpr_regimes": True,
         "current_gpr_regime": regime_meta['current_GPR_regime'],
         "current_gpr_percentile": regime_meta['current_GPR_percentile'],
+        "analogue_episodes_count": len(analogue_df),
         "stage6_conflict_references": True,
         "conflict_cases_count": len(conflicts_df),
-        "all_tests_passed": True
+        "phase2_validation_checks_passed": True
     }
     
     with open("outputs/phase2/phase2_validation.json", "w") as f:
@@ -91,18 +100,18 @@ Phase 2 evaluated the historical descriptive relationship between geopolitical r
 ### Stage 3 — Systematic GPR Shock Analysis
 - **Analysis Window**: {valid_start} -> {valid_end} ({num_months} months)
 - **Positive Delta GPR Cutoff (90th Pct)**: **{gpr_meta['threshold']:.2f}**
-- **Raw Shock Months**: {gpr_meta['threshold']} -> **{len(episodes_df)} non-overlapping shock episodes**
+- **Raw Shock Months**: **{len(raw_shocks_df)}** -> **{len(episodes_df)} non-overlapping shock episodes**
 - **Finding**: Commodity responses following GPR shocks vary by commodity. Brent and Wheat exhibited modest post-shock negative return drift, while Natural Gas and Gold showed positive median responses over +3M horizons.
 
 ### Stage 4 — Threats vs Acts (GPRT vs GPRA)
 - **GPRT (Threats) 90th Pct Threshold**: **{gprt_meta['threshold']:.2f}** ({len(t_episodes)} episodes)
 - **GPRA (Acts) 90th Pct Threshold**: **{gpra_meta['threshold']:.2f}** ({len(a_episodes)} episodes)
-- **Finding**: Realized geopolitical acts (GPRA) were associated with stronger short-term positive price responses in Gold (+2.35% median) and Natural Gas (+6.35% median) compared to threat shocks (GPRT).
+- **Finding**: Realized geopolitical acts (GPRA) were associated with distinct post-shock price responses (e.g. Gold: {gold_act_3m:+.2f}% +3M median, Natural Gas: {ng_act_3m:+.2f}% +3M median) compared to threat shocks (GPRT).
 
 ### Stage 5 — Current GPR Regime & Historical Analogue
-- **Empirical Cutoff Thresholds**: P50 = 92.8, P75 = 113.5, P90 = 146.7
+- **Empirical Cutoff Thresholds**: P50 = {regime_thresh_data['P50']:.1f}, P75 = {regime_thresh_data['P75']:.1f}, P90 = {regime_thresh_data['P90']:.1f}
 - **Current Situation ({valid_end})**: GPR = **{regime_meta['current_GPR']:.2f}** ({regime_meta['current_GPR_percentile']:.0f}th percentile) -> **{regime_meta['current_GPR_regime']}** Regime.
-- **Historical Analogue**: 21 representative historical episodes in the EXTREME regime ({valid_start.split('-')[0]}-{valid_end.split('-')[0]}).
+- **Historical Analogue**: {len(analogue_df)} representative historical episodes in the {regime_meta['current_GPR_regime']} regime.
 
 ### Stage 6 — Major Conflict Reference Cases
 - **Selected Documented References**: {len(conflicts_df)} systematic shock episodes (9/11 Attacks, 2003 Iraq Invasion, 2014 Crimea Crisis, 2022 Russia-Ukraine Invasion).

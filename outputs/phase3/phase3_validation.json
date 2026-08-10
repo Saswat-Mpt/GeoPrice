@@ -7,5 +7,5 @@
     "ablation_completed": true,
     "robustness_completed": true,
     "leakage_audit_passed": true,
-    "all_tests_passed": true
+    "phase3_validation_checks_passed": true
 }

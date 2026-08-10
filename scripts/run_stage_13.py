@@ -15,38 +15,33 @@ def run_phase_4_final_summary(test_pass_count: int):
     """Generates final project summary markdown outputs/phase4/final_project_summary.md."""
     os.makedirs("outputs/phase4", exist_ok=True)
 
-    # Load dynamic analytical results
-    gpr_thresh = 37.49
-    if os.path.exists("data/processed/gpr_shock_threshold.json"):
-        with open("data/processed/gpr_shock_threshold.json") as f:
-            gpr_thresh = json.load(f).get('threshold', 37.49)
-            
-    t_thresh = 46.59
-    if os.path.exists("data/processed/gprt_shock_threshold.json"):
-        with open("data/processed/gprt_shock_threshold.json") as f:
-            t_thresh = json.load(f).get('threshold', 46.59)
-            
-    a_thresh = 36.33
-    if os.path.exists("data/processed/gpra_shock_threshold.json"):
-        with open("data/processed/gpra_shock_threshold.json") as f:
-            a_thresh = json.load(f).get('threshold', 36.33)
+    # Load dynamic analytical results strictly (no silent fallbacks)
+    req_files = {
+        "gpr_shock_threshold.json": "data/processed/gpr_shock_threshold.json",
+        "gprt_shock_threshold.json": "data/processed/gprt_shock_threshold.json",
+        "gpra_shock_threshold.json": "data/processed/gpra_shock_threshold.json",
+        "gpr_regime_thresholds.json": "data/processed/gpr_regime_thresholds.json",
+        "current_gpr_regime.json": "data/processed/current_gpr_regime.json",
+    }
+    for name, fpath in req_files.items():
+        if not os.path.exists(fpath):
+            raise FileNotFoundError(f"Required analytical artifact '{fpath}' missing! Rerun earlier stages before Stage 13.")
 
-    p50, p75, p90 = 91.24, 113.41, 146.06
-    if os.path.exists("data/processed/gpr_regime_thresholds.json"):
-        with open("data/processed/gpr_regime_thresholds.json") as f:
-            rdata = json.load(f)
-            p50 = rdata.get('P50', p50)
-            p75 = rdata.get('P75', p75)
-            p90 = rdata.get('P90', p90)
-
-    curr_gpr, curr_pct, curr_reg, curr_date = 179.72, 96.1, "EXTREME", "2026-06"
-    if os.path.exists("data/processed/current_gpr_regime.json"):
-        with open("data/processed/current_gpr_regime.json") as f:
-            cdata = json.load(f)
-            curr_gpr = cdata.get('current_GPR', curr_gpr)
-            curr_pct = cdata.get('current_GPR_percentile', curr_pct)
-            curr_reg = cdata.get('current_GPR_regime', curr_reg)
-            curr_date = cdata.get('current_date', curr_date)
+    with open("data/processed/gpr_shock_threshold.json") as f:
+        gpr_thresh = json.load(f)['threshold']
+    with open("data/processed/gprt_shock_threshold.json") as f:
+        t_thresh = json.load(f)['threshold']
+    with open("data/processed/gpra_shock_threshold.json") as f:
+        a_thresh = json.load(f)['threshold']
+    with open("data/processed/gpr_regime_thresholds.json") as f:
+        rdata = json.load(f)
+        p50, p75, p90 = rdata['P50'], rdata['P75'], rdata['P90']
+    with open("data/processed/current_gpr_regime.json") as f:
+        cdata = json.load(f)
+        curr_gpr = cdata['current_GPR']
+        curr_pct = cdata['current_GPR_percentile']
+        curr_reg = cdata['current_GPR_regime']
+        curr_date = cdata['current_date']
 
     summary_md = f"""# GeoPrice — Final Project Summary & Master Architecture Report
 

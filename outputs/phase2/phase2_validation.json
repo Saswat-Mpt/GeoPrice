@@ -1,6 +1,7 @@
 {
     "stage3_gpr_shocks": true,
     "gpr_shock_threshold": 36.143646240234375,
+    "raw_gpr_shocks_count": 21,
     "gpr_shock_episodes_count": 17,
     "stage4_threats_acts": true,
     "gprt_threat_threshold": 46.591021728515635,
@@ -10,7 +11,8 @@
     "stage5_gpr_regimes": true,
     "current_gpr_regime": "EXTREME",
     "current_gpr_percentile": 96.13526570048309,
+    "analogue_episodes_count": 16,
     "stage6_conflict_references": true,
     "conflict_cases_count": 4,
-    "all_tests_passed": true
+    "phase2_validation_checks_passed": true
 }

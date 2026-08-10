@@ -76,7 +76,7 @@ def run_phase_3_checkpoint(imp_df: pd.DataFrame, rob_df: pd.DataFrame):
         "ablation_completed": True,
         "robustness_completed": True,
         "leakage_audit_passed": True,
-        "all_tests_passed": True
+        "phase3_validation_checks_passed": True
     }
 
     with open("outputs/phase3/phase3_validation.json", "w") as f:
@@ -107,7 +107,7 @@ Phase 3 evaluated out-of-sample monthly commodity return predictions using **exp
 ## 3. Key Data-Driven Conclusions
 1. **Gold**: GeoPrice achieved lower out-of-sample forecasting error (**2.84% MAE** vs 2.86% Baseline MAE), demonstrating marginal predictive improvement when incorporating geopolitical features.
 2. **Commodity-Dependent Sensitivity**: Incremental value of GPR features varies across commodities; price history dominates short-term predictions for Brent, Natural Gas, Copper, and Wheat.
-3. **Robustness**: Error levels are naturally higher during **HIGH & EXTREME** GPR regimes across all commodities due to elevated market volatility during crisis episodes.
+3. **Robustness**: Forecast error behavior varied by commodity across GPR regimes; elevated-risk regimes were associated with higher errors for most commodities.
 
 ## 4. Phase 3 Status
 **PHASE 3 COMPLETE — ALL STAGES VALIDATED.**
@@ -141,11 +141,12 @@ def main():
     df_regimes = pd.read_csv(regimes_path)
     df_aligned = pd.read_csv(raw_path)
 
-    # 1. Prediction Date Alignment Verification
+    # 1. Prediction Date & Commodity Alignment Verification
     print("\n[Step 1/5] Verifying prediction date and target alignment between Baseline and GeoPrice...")
-    assert list(base_preds['Date']) == list(geo_preds['Date']), "Prediction date mismatch between Baseline and GeoPrice!"
+    assert base_preds[['Commodity', 'Date']].equals(geo_preds[['Commodity', 'Date']]), "Prediction Commodity/Date mismatch between Baseline and GeoPrice!"
     assert np.allclose(base_preds['Actual_Return'], geo_preds['Actual_Return']), "Actual return mismatch between Baseline and GeoPrice!"
-    print("-> Date and Target alignment verified: 100% match (198 OOS prediction dates per commodity).")
+    counts_str = ", ".join([f"{c}: {len(base_preds[base_preds['Commodity']==c])}" for c in COMMODITIES])
+    print(f"-> Date and Target alignment verified: 100% match ({counts_str} OOS prediction dates).")
 
     # 2. Overall Metrics & Improvement Tables
     print("\n[Step 2/5] Calculating model improvements and overall metric comparison...")

@@ -95,7 +95,7 @@ def main():
     print(f"\n[Step 1/6] Loading Stage 1 validated monthly dataset...")
     df_aligned = pd.read_csv(aligned_path)
     
-    # Filter to GPR active range (1985-01 onward)
+    # Filter to common GPR + five-commodity analysis window
     valid_df = df_aligned.dropna(subset=['GPR', 'Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']).copy()
     valid_start = valid_df['Date'].iloc[0]
     valid_end = valid_df['Date'].iloc[-1]

@@ -94,11 +94,12 @@ def create_feature_dictionary(feature_df: pd.DataFrame) -> pd.DataFrame:
     
     # Commodity features for each commodity
     for c in COMMODITIES:
+        c_src = "World Bank Pink Sheet" if c == "Gold" else "FRED"
         dict_rows.extend([
-            {"Feature_Name": f"{c}_return_1m", "Group": "Commodity History", "Definition": f"1-month decimal return: P_t / P_(t-1) - 1 for {c}", "Source": "World Bank / IMF", "Window": "1 Month", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First month NaN"},
-            {"Feature_Name": f"{c}_return_3m", "Group": "Commodity History", "Definition": f"3-month decimal return: P_t / P_(t-3) - 1 for {c}", "Source": "World Bank / IMF", "Window": "3 Months", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First 3 months NaN"},
-            {"Feature_Name": f"{c}_return_6m", "Group": "Commodity History", "Definition": f"6-month decimal return: P_t / P_(t-6) - 1 for {c}", "Source": "World Bank / IMF", "Window": "6 Months", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First 6 months NaN"},
-            {"Feature_Name": f"{c}_vol_3m", "Group": "Commodity History", "Definition": f"3-month rolling std dev of 1M returns for {c}", "Source": "World Bank / IMF", "Window": "3 Months", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First 3 months NaN"},
+            {"Feature_Name": f"{c}_return_1m", "Group": "Commodity History", "Definition": f"1-month decimal return: P_t / P_(t-1) - 1 for {c}", "Source": c_src, "Window": "1 Month", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First month NaN"},
+            {"Feature_Name": f"{c}_return_3m", "Group": "Commodity History", "Definition": f"3-month decimal return: P_t / P_(t-3) - 1 for {c}", "Source": c_src, "Window": "3 Months", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First 3 months NaN"},
+            {"Feature_Name": f"{c}_return_6m", "Group": "Commodity History", "Definition": f"6-month decimal return: P_t / P_(t-6) - 1 for {c}", "Source": c_src, "Window": "6 Months", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First 6 months NaN"},
+            {"Feature_Name": f"{c}_vol_3m", "Group": "Commodity History", "Definition": f"3-month rolling std dev of 1M returns for {c}", "Source": c_src, "Window": "3 Months", "Availability_Rule": "Point-in-time price", "Expected_Missingness": "First 3 months NaN"},
         ])
         
     return pd.DataFrame(dict_rows)
