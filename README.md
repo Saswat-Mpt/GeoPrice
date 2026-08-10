@@ -8,12 +8,12 @@ GeoPrice is a classical machine-learning and empirical event-study system design
 
 ```text
 PHASE 1: Data Collection, Alignment & Signature Feature Engineering
-├── Stage 1: Data Collection & Alignment (Caldara-Iacoviello GPR, Pink Sheet Commodities, FRED DTWEXBGS DXY)
-└── Stage 2: Signature Feature Engineering (11 features per commodity; Release-aware availability rule using the published monthly series; full historical vintage reconstruction is not performed.)
+├── Stage 1: Data Collection & Alignment (Caldara-Iacoviello GPR, FRED commodity series, World Bank Pink Sheet Gold, FRED DXY)
+└── Stage 2: Signature Feature Engineering (11 features per commodity; release-aware availability rule using the published monthly series; full historical vintage reconstruction is not performed.)
 
 PHASE 2: Descriptive Geopolitical Analysis & Historical Analogue
-├── Stage 3: Systematic GPR Shock Analysis (Top-decile ΔGPR ≥ 37.49, 21 non-overlapping episodes)
-├── Stage 4: Threats vs. Acts Analysis (GPRT ≥ 46.42 vs. GPRA ≥ 37.20 independent shock responses)
+├── Stage 3: Systematic GPR Shock Analysis (Top-decile positive ΔGPR; 17 non-overlapping episodes)
+├── Stage 4: Threats vs. Acts Analysis (GPRT and GPRA independent shock responses)
 ├── Stage 5: Current GPR Regime & Historical Analogue (LOW/MODERATE/HIGH/EXTREME percentile regimes)
 └── Stage 6: Major Conflict Reference Cases (Systematic shock mapping: 9/11, 2003 Iraq, 2014 Crimea, 2022 Ukraine)
 
