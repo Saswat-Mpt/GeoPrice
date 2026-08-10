@@ -53,7 +53,7 @@ def main():
     print("Interactive Streamlit Dashboard Entry Point: app.py")
     print("Startup Command: streamlit run app.py")
     print("=" * 80)
-    print("STAGE 10 COMPLETE — GEOPRICE PROJECT FULLY FINISHED.")
+    print("STAGE 10 COMPLETE — READY FOR STAGE 11.")
     print("=" * 80)
 
 if __name__ == "__main__":

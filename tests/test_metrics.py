@@ -37,6 +37,11 @@ def test_directional_accuracy():
     da = calculate_directional_accuracy(y_true, y_pred)
     assert np.isclose(da, 0.75)
 
+    # Test that constant zero predictions return np.nan for DA
+    y_pred_zero = np.zeros_like(y_true)
+    da_zero = calculate_directional_accuracy(y_true, y_pred_zero)
+    assert np.isnan(da_zero)
+
 def test_evaluate_all_metrics():
     y_true = np.array([0.02, -0.01, 0.04])
     y_pred = np.array([0.01, -0.02, 0.03])

@@ -23,14 +23,18 @@ def calculate_rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def calculate_directional_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     Directional Accuracy: (1/N) * sum(sign(y_hat) == sign(y))
-    Excludes exact zero actual returns from DA calculation.
-    For exact zero predictions (e.g. naive zero return), sign(0) is 0, which yields False when compared to non-zero actuals.
+    Returns np.nan (N/A) for constant zero predictions (e.g. naive zero-return model),
+    as a zero-return forecast predicts no direction.
     """
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
     
     valid_mask = ~np.isnan(y_true) & ~np.isnan(y_pred) & (y_true != 0.0)
     if not np.any(valid_mask):
+        return np.nan
+
+    # If all non-nan predictions are exact 0.0 (naive zero forecast), DA is not applicable
+    if np.all(y_pred[valid_mask] == 0.0):
         return np.nan
         
     actual_sign = np.sign(y_true[valid_mask])

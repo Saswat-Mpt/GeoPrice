@@ -29,25 +29,21 @@ def load_dxy_daily(local_path: str = os.path.join(FRED_LOCAL_DIR, "DTWEXBGS.csv"
         df = df.dropna(subset=['Date', 'DTWEXBGS']).copy()
         return df[['Date', 'DTWEXBGS']]
         
-    # If not present, download from Yahoo Finance DX-Y.NYB
-    url = "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?range=25y&interval=1d"
+    # If local file missing, download authentic FRED DTWEXBGS series directly from FRED
+    fred_url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DTWEXBGS"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-    r = requests.get(url, headers=headers, timeout=15)
+    r = requests.get(fred_url, headers=headers, timeout=20)
     r.raise_for_status()
-    data = r.json()
-    timestamps = data['chart']['result'][0]['timestamp']
-    quotes = data['chart']['result'][0]['indicators']['quote'][0]['close']
     
-    df = pd.DataFrame({'timestamp': timestamps, 'DTWEXBGS': quotes})
-    df['Date'] = pd.to_datetime(df['timestamp'], unit='s')
-    df['DTWEXBGS'] = pd.to_numeric(df['DTWEXBGS'], errors='coerce')
+    with open(local_path, "wb") as f:
+        f.write(r.content)
+
+    df = pd.read_csv(local_path)
+    date_col = 'DATE' if 'DATE' in df.columns else df.columns[0]
+    val_col = 'DTWEXBGS' if 'DTWEXBGS' in df.columns else df.columns[1]
+    df['Date'] = pd.to_datetime(df[date_col], errors='coerce')
+    df['DTWEXBGS'] = pd.to_numeric(df[val_col], errors='coerce')
     df = df.dropna(subset=['Date', 'DTWEXBGS']).copy()
-    
-    # Save raw daily file
-    save_df = df[['Date', 'DTWEXBGS']].copy()
-    save_df['DATE'] = save_df['Date'].dt.strftime('%Y-%m-%d')
-    save_df[['DATE', 'DTWEXBGS']].to_csv(local_path, index=False)
-    
     return df[['Date', 'DTWEXBGS']]
 
 def aggregate_dxy_monthly(df_daily: pd.DataFrame) -> pd.DataFrame:

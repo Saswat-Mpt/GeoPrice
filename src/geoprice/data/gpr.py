@@ -25,8 +25,19 @@ def load_gpr(local_path: str = LOCAL_GPR_PATH) -> pd.DataFrame:
     """
     file_path = download_gpr_if_missing(local_path)
     
-    # Read raw excel file
-    df_raw = pd.read_excel(file_path)
+    # Read raw excel file with fallback engines and alternative file formats
+    try:
+        df_raw = pd.read_excel(file_path)
+    except Exception:
+        # Fallback to alternative local excel or engine
+        alt_path = "data/raw/gpr/gpr_web_latest.xlsx"
+        if os.path.exists(alt_path):
+            df_raw = pd.read_excel(alt_path, engine="openpyxl")
+        else:
+            try:
+                df_raw = pd.read_excel(file_path, engine="xlrd")
+            except Exception as ex:
+                raise ImportError(f"Failed to read GPR excel file. Please ensure 'xlrd' or 'openpyxl' is installed. Error: {ex}")
     
     # Determine date column
     date_col = 'month' if 'month' in df_raw.columns else ('Date' if 'Date' in df_raw.columns else 'date')

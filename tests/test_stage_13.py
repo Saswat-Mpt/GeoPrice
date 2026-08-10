@@ -10,7 +10,6 @@ from geoprice.analysis.shock_responses import COMMODITIES
 def test_dashboard_files_exist():
     required_files = [
         "app.py",
-        "pages/1_Market_Overview.py",
         "pages/2_Shock_Regime_Analysis.py",
         "pages/3_Outlook.py"
     ]
