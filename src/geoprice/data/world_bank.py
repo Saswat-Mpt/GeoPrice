@@ -109,6 +109,9 @@ def load_world_bank_commodities(local_path: str = LOCAL_WB_PATH) -> pd.DataFrame
     Loads all monthly commodity series from World Bank Pink Sheet.
     Returns DataFrame indexed by monthly PeriodIndex containing:
     ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
+
+    Note: Legacy/utility function. Canonical GeoPrice ingestion uses FRED for
+    Brent, Natural_Gas, Copper, and Wheat, and load_world_bank_gold() for Gold.
     """
     file_path = download_world_bank_if_missing(local_path)
     df_raw = pd.read_excel(file_path, sheet_name='Monthly Prices', header=None)

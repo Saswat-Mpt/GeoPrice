@@ -73,33 +73,38 @@ python -m pytest tests/ -v
 
 ---
 
-## 📈 Key Out-of-Sample Performance Summary (Training: 2006+, OOS evaluation: ~2010-2026, N=198 per commodity)
+## 📈 Key Out-of-Sample Performance Summary (Training: 2006+, OOS evaluation: ~2010-2026, N=197-198 per commodity)
 
 | Commodity | Naive MAE | Baseline MAE | GeoPrice MAE | Naive DA | Baseline DA | GeoPrice DA | Key Finding |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Brent** | 6.74% | **6.60%** | 6.69% | N/A | **54.8%** | 53.8% | Price history dominates short-term energy returns. |
-| **Natural Gas** | 11.34% | **11.42%** | 11.75% | N/A | 47.7% | 47.7% | High volatility; GPR features add variance without error reduction. |
-| **Gold** | 2.84% | 2.86% | **2.84%** | N/A | 53.8% | **53.8%** | **Full feature set reduced Gold's out-of-sample MAE by 0.61%.** |
-| **Copper** | 3.64% | **3.59%** | 3.68% | N/A | **54.3%** | 53.8% | Industrial demand dynamics dominate short-term returns. |
-| **Wheat** | 4.99% | **5.11%** | 5.29% | N/A | 50.5% | **51.0%** | GeoPrice improves Directional Accuracy (+0.5 pts). |
+| **Brent** | 6.27% | **6.24%** | 6.30% | N/A | **55.3%** | 54.3% | Price history dominates short-term energy returns. |
+| **Natural Gas** | **9.29%** | 9.34% | 9.63% | N/A | 49.7% | **50.3%** | High volatility; GPR features add variance without error reduction. |
+| **Gold** | 2.84% | 2.86% | **2.84%** | N/A | **53.8%** | **53.8%** | **Full feature set reduced Gold's out-of-sample MAE by 0.61% vs baseline.** |
+| **Copper** | 3.65% | **3.59%** | 3.67% | N/A | 54.8% | **55.3%** | Industrial demand dynamics dominate short-term returns. |
+| **Wheat** | **5.28%** | 5.30% | 5.30% | N/A | 55.8% | **56.3%** | GeoPrice improves Directional Accuracy (+0.5 pts) and slightly improves MAE. |
 
 *Note: Naive zero-return model predicts no direction, so Naive Directional Accuracy is marked as N/A.*
+
+### Conclusion on Forecasting Utility
+Geopolitical features did not provide consistent incremental forecasting value across all commodities. GeoPrice produced small MAE improvements for Gold and Wheat, while the price-history baseline remained superior for Brent, Natural Gas, and Copper.
 
 ---
 
 ## 📚 Data Source Citations & Disclaimers
 
 1. **Geopolitical Risk Index (GPR/GPRT/GPRA)**: Caldara, Dario, and Matteo Iacoviello (2022), "Measuring Geopolitical Risk," *American Economic Review*, 112(4), 1194–1225.
-2. **Commodity Prices**: FRED (Federal Reserve Bank of St. Louis) for Brent (POILBREUSDM), Natural Gas (PNGASUSUSDM), Copper (PCOPPUSDM), Wheat (PWHEAMTUSDM); World Bank Pink Sheet for Gold.
-3. **Trade-Weighted U.S. Dollar Index (DXY)**: Federal Reserve Bank of St. Louis (FRED) DTWEXBGS.
+2. **Commodity Prices**: FRED (Federal Reserve Bank of St. Louis) for Brent (`POILBREUSDM`), Natural Gas (`PNGASUSUSDM`), Copper (`PCOPPUSDM`), Wheat (`PWHEAMTUSDM`); World Bank Pink Sheet for Gold.
+3. **Trade-Weighted U.S. Dollar Index (DXY)**: Federal Reserve Bank of St. Louis (FRED) `DTWEXBGS`.
 
-| Asset | Source |
-| :--- | :--- |
-| Brent | FRED POILBREUSDM |
-| Natural Gas | FRED PNGASUSUSDM |
-| Gold | World Bank Pink Sheet |
-| Copper | FRED PCOPPUSDM |
-| Wheat | FRED PWHEAMTUSDM |
-| DXY | FRED DTWEXBGS |
+| Asset | Source | Series ID |
+| :--- | :--- | :--- |
+| Brent | FRED | POILBREUSDM |
+| Natural Gas | FRED | PNGASUSUSDM |
+| Gold | World Bank Pink Sheet | Monthly Prices (Col 69) |
+| Copper | FRED | PCOPPUSDM |
+| Wheat | FRED | PWHEAMTUSDM |
+| DXY | FRED | DTWEXBGS |
+
+*Note on Raw Data Licensing: Raw source files are included in the repository for reproducibility; users should respect the licensing/usage terms of each upstream provider.*
 
 *Disclaimer: GeoPrice provides model-based forecasts and historical context for analytical purposes only. It is not investment advice and does not predict geopolitical events.*

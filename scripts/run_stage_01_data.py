@@ -7,8 +7,8 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 from geoprice.data.gpr import load_gpr
-from geoprice.data.world_bank import inspect_world_bank_gold, load_world_bank_commodities
-from geoprice.data.fred import load_dxy_daily, aggregate_dxy_monthly
+from geoprice.data.world_bank import inspect_world_bank_gold, load_world_bank_gold
+from geoprice.data.fred import load_dxy_daily, aggregate_dxy_monthly, load_fred_commodities
 from geoprice.data.alignment import (
     align_datasets,
     validate_aligned_data,
@@ -33,20 +33,23 @@ def run_source_check():
     except Exception as e:
         checklist.append({"Dataset": "GPR / GPRT / GPRA", "Source": "Caldara-Iacoviello", "Local file": "data/raw/gpr/", "Downloaded?": "No", "Date range": "N/A", "Rows": 0, "Status": f"FAIL ({e})"})
 
-    # 2. World Bank Commodities
+    # 2. FRED Commodities
     try:
-        df_comm = load_world_bank_commodities()
-        gold_info = inspect_world_bank_gold()
-        
+        df_fred_comm = load_fred_commodities()
         for c, sid in [("Brent", "POILBREUSDM"), ("Natural Gas", "PNGASUSUSDM"), ("Copper", "PCOPPUSDM"), ("Wheat", "PWHEAMTUSDM")]:
             c_key = c.replace(" ", "_")
-            if c_key in df_comm.columns:
-                valid_s = df_comm[c_key].dropna()
-                checklist.append({"Dataset": f"{c} - {sid}", "Source": "World Bank Pink Sheet / IMF", "Local file": "data/raw/world_bank/CMO-Historical-Data-Monthly.xlsx", "Downloaded?": "Yes", "Date range": f"{valid_s.index[0]} to {valid_s.index[-1]}", "Rows": len(valid_s), "Status": "PASS"})
+            if c_key in df_fred_comm.columns:
+                valid_s = df_fred_comm[c_key].dropna()
+                checklist.append({"Dataset": f"{c} - {sid}", "Source": "FRED", "Local file": f"data/raw/fred/{sid}.csv", "Downloaded?": "Yes", "Date range": f"{valid_s.index[0]} to {valid_s.index[-1]}", "Rows": len(valid_s), "Status": "PASS"})
+    except Exception as e:
+        print(f"Error checking FRED commodities: {e}")
 
+    # 3. World Bank Gold
+    try:
+        gold_info = inspect_world_bank_gold()
         checklist.append({"Dataset": "Gold - World Bank Pink Sheet", "Source": "World Bank Pink Sheet", "Local file": "data/raw/world_bank/CMO-Historical-Data-Monthly.xlsx", "Downloaded?": "Yes", "Date range": f"{gold_info['first_valid_date']} to {gold_info['last_valid_date']}", "Rows": gold_info['valid_gold_obs'], "Status": "PASS"})
     except Exception as e:
-        print(f"Error checking commodities: {e}")
+        print(f"Error checking Gold: {e}")
 
     # 3. DXY
     try:

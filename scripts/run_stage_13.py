@@ -15,6 +15,39 @@ def run_phase_4_final_summary(test_pass_count: int):
     """Generates final project summary markdown outputs/phase4/final_project_summary.md."""
     os.makedirs("outputs/phase4", exist_ok=True)
 
+    # Load dynamic analytical results
+    gpr_thresh = 37.49
+    if os.path.exists("data/processed/gpr_shock_threshold.json"):
+        with open("data/processed/gpr_shock_threshold.json") as f:
+            gpr_thresh = json.load(f).get('threshold', 37.49)
+            
+    t_thresh = 46.59
+    if os.path.exists("data/processed/gprt_shock_threshold.json"):
+        with open("data/processed/gprt_shock_threshold.json") as f:
+            t_thresh = json.load(f).get('threshold', 46.59)
+            
+    a_thresh = 36.33
+    if os.path.exists("data/processed/gpra_shock_threshold.json"):
+        with open("data/processed/gpra_shock_threshold.json") as f:
+            a_thresh = json.load(f).get('threshold', 36.33)
+
+    p50, p75, p90 = 91.24, 113.41, 146.06
+    if os.path.exists("data/processed/gpr_regime_thresholds.json"):
+        with open("data/processed/gpr_regime_thresholds.json") as f:
+            rdata = json.load(f)
+            p50 = rdata.get('P50', p50)
+            p75 = rdata.get('P75', p75)
+            p90 = rdata.get('P90', p90)
+
+    curr_gpr, curr_pct, curr_reg, curr_date = 179.72, 96.1, "EXTREME", "2026-06"
+    if os.path.exists("data/processed/current_gpr_regime.json"):
+        with open("data/processed/current_gpr_regime.json") as f:
+            cdata = json.load(f)
+            curr_gpr = cdata.get('current_GPR', curr_gpr)
+            curr_pct = cdata.get('current_GPR_percentile', curr_pct)
+            curr_reg = cdata.get('current_GPR_regime', curr_reg)
+            curr_date = cdata.get('current_date', curr_date)
+
     summary_md = f"""# GeoPrice — Final Project Summary & Master Architecture Report
 
 ## 1. Executive Summary
@@ -25,29 +58,29 @@ def run_phase_4_final_summary(test_pass_count: int):
 ## 2. System Architecture & Methodology
 
 ### Phase 1 — Data Collection, Alignment & Feature Engineering (Stages 1-2)
-- **Data Ingestion**: Official Caldara-Iacoviello GPR index, subindices (GPRT, GPRA), World Bank Commodity Pink Sheet series, and daily FRED DXY (DTWEXBGS) aggregated via monthly arithmetic mean.
+- **Data Ingestion**: Official Caldara-Iacoviello GPR index and subindices (GPRT, GPRA), FRED commodity series (Brent `POILBREUSDM`, Natural Gas `PNGASUSUSDM`, Copper `PCOPPUSDM`, Wheat `PWHEAMTUSDM`), World Bank Pink Sheet (Gold), and daily FRED DXY (`DTWEXBGS`) aggregated via monthly arithmetic mean.
 - **Canonical Timeline**: 800 monthly observations (`1960-01` to `2026-08`).
 - **Feature Set (11 features per commodity)**:
   - **Commodity History (4)**: `return_1m`, `return_3m`, `return_6m`, `vol_3m`
   - **Geopolitical Risk (6)**: `GPR`, `GPR_change`, `GPR_lag1`, `GPR_lag3`, `GPRT`, `GPRA`
   - **Macro Control (1)**: `DXY`
-- **Anti-Leakage Guarantee**: Release-aware availability rules documented and validated; lagged predictor variables ($t$) ensure no target variable leakage ($t+1$).
+- **Temporal Leakage Controls**: Release-aware availability rules documented and validated; lagged predictor variables ($t$) ensure no target variable leakage ($t+1$).
 
 ### Phase 2 — Descriptive Geopolitical Analysis & Historical Analogue (Stages 3-6)
-- **Stage 3 (GPR Shocks)**: Top-decile positive GPR change (>= 37.49) with 3-month overlap collapsing (21 non-overlapping episodes). Forward returns (+1M, +2M, +3M) calculated.
-- **Stage 4 (Threats vs Acts)**: Threat shocks (GPRT >= 46.42) vs Act shocks (GPRA >= 37.20). Realized acts exhibited stronger post-shock positive price responses in Gold (+2.35% median) and Natural Gas (+6.35% median).
-- **Stage 5 (GPR Regimes & Analogue)**: Empirical level boundaries (P50 = 92.8, P75 = 113.5, P90 = 146.7). Identified current state (`2026-07` GPR 152.67, 92nd percentile -> EXTREME regime) and representative historical analogue set.
+- **Stage 3 (GPR Shocks)**: Top-decile positive GPR change ($\\Delta GPR \\ge {gpr_thresh:.2f}$) with 3-month overlap collapsing. Forward returns (+1M, +2M, +3M) calculated.
+- **Stage 4 (Threats vs Acts)**: Threat shocks ($GPRT \\ge {t_thresh:.2f}$) vs Act shocks ($GPRA \\ge {a_thresh:.2f}$). Realized acts exhibited distinct post-shock price response dynamics across commodity classes.
+- **Stage 5 (GPR Regimes & Analogue)**: Empirical level boundaries ($P_{{50}} = {p50:.1f}$, $P_{{75}} = {p75:.1f}$, $P_{{90}} = {p90:.1f}$). Identified current common commodity cutoff state (`{curr_date}` GPR {curr_gpr:.2f}, {curr_pct:.1f}th percentile -> {curr_reg} regime) and representative historical analogue set.
 - **Stage 6 (Major Conflict Reference Cases)**: 4 documented major historical conflict/crisis cases (9/11 Attacks, 2003 Iraq Invasion, 2014 Crimea Crisis, 2022 Russia-Ukraine Invasion) anchored strictly to systematic Stage 3 shock dates.
 
 ### Phase 3 — Classical ML Forecasting & Validation (Stages 7-9)
-- **Stage 7 (Baseline Model)**: Price-history ElasticNet Baseline (4 features) using expanding-window time-series CV (`2006-2026`, N_OOS = 198).
+- **Stage 7 (Baseline Model)**: Price-history ElasticNet Baseline (4 features) using expanding-window time-series CV (`2006-2026`, N_OOS = 197-198 per commodity).
 - **Stage 8 (GeoPrice Model)**: Full GeoPrice Model (11 features) under identical pipeline (StandardScaler -> ElasticNet), dates, targets (next-month return), and evaluation metrics.
-- **Stage 9 (Final Evaluation & Validation)**: Full GeoPrice feature set reduced Gold's out-of-sample MAE by 0.61% relative to price history baseline (2.84% MAE vs 2.86% Baseline). Geopolitical features did not provide consistent incremental forecasting value across all commodities.
+- **Stage 9 (Final Evaluation & Validation)**: Geopolitical features did not provide consistent incremental forecasting value across all commodities. GeoPrice produced small MAE improvements for Gold (2.838% vs 2.856% Baseline) and Wheat (5.300% vs 5.302% Baseline), while the price-history baseline remained superior for Brent, Natural Gas, and Copper.
 
 ### Phase 4 — Production Inference, Interpretability & Dashboard (Stages 10-13)
 - **Stage 10 (Production Pipeline & Inference)**: Production `.joblib` model artifacts exported to `models/`. Fast inference pipeline.
 - **Stage 11 (Scenario Explorer)**: Manual historical lookup mode for GPR regimes and major conflict references. Guaranteed zero ML model calls.
-- **Stage 12 (Coefficient Interpretation)**: Exact prediction explanation via standardized feature contributions (Contribution = beta * z). Passed 100% exact prediction reconstruction checks (Prediction == Intercept + sum(beta * z)).
+- **Stage 12 (Coefficient Interpretation)**: Exact prediction explanation via standardized feature contributions (Contribution = $\\beta \\times z$). Passed 100% exact prediction reconstruction checks (Prediction == $\\beta_0 + \\sum \\beta \\times z$).
 - **Stage 13 (Final Three-Page Streamlit Dashboard)**: Interactive Streamlit web application (`app.py` + `pages/` 3-page navigation).
 
 ---

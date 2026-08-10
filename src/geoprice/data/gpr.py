@@ -17,8 +17,9 @@ def download_gpr_if_missing(local_path: str = LOCAL_GPR_PATH) -> str:
         response.raise_for_status()
         with open(local_path, "wb") as f:
             f.write(response.content)
-    except Exception:
-        pass
+    except Exception as e:
+        if not os.path.exists(local_path):
+            raise RuntimeError(f"Failed to download official GPR dataset from {GPR_URL}: {e}")
     return local_path
 
 def load_gpr(local_path: str = LOCAL_GPR_PATH) -> pd.DataFrame:

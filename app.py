@@ -30,15 +30,16 @@ st.markdown("""
 aligned_path = "data/processed/monthly_aligned.csv"
 if os.path.exists(aligned_path):
     df_aligned = pd.read_csv(aligned_path)
-    # Calculate latest date per series
     latest_gpr_date = df_aligned.dropna(subset=['GPR'])['Date'].iloc[-1]
-    latest_commodity_date = df_aligned.dropna(subset=['Brent','Gold'])['Date'].iloc[-1]
     latest_dxy_date = df_aligned.dropna(subset=['DXY'])['Date'].iloc[-1]
-    # Forecast origin = latest row with complete features
+    
+    # Common commodity cutoff vs Gold extra month
+    comm_common_latest = df_aligned.dropna(subset=['Brent', 'Natural_Gas', 'Copper', 'Wheat'])['Date'].iloc[-1]
+    gold_latest = df_aligned.dropna(subset=['Gold'])['Date'].iloc[-1]
+    
     feat_path_check = 'data/processed/feature_dataset.csv'
     if os.path.exists(feat_path_check):
         df_feat = pd.read_csv(feat_path_check)
-        # Get the latest row that has all required features for at least one commodity
         forecast_origin = df_feat.dropna(subset=['GPR','DXY','Brent_return_1m'])['Date'].iloc[-1]
         target_period = str((pd.to_datetime(forecast_origin) + pd.DateOffset(months=1)).to_period('M'))
     else:
@@ -46,8 +47,9 @@ if os.path.exists(aligned_path):
         target_period = 'Next Month'
 else:
     latest_gpr_date = "Latest Available Month"
-    latest_commodity_date = "Latest Available Month"
     latest_dxy_date = "Latest Available Month"
+    comm_common_latest = "Latest Available Month"
+    gold_latest = "Latest Available Month"
     forecast_origin = "Latest Available Month"
     target_period = "Next Month"
 
@@ -63,11 +65,20 @@ selected_commodity = st.sidebar.selectbox(
     help="Select one of 5 primary commodities to inspect current outlook."
 )
 
+# Commodity-specific forecast origin and target
+try:
+    c_fcast_info = predict_next_month(selected_commodity)
+    c_origin = c_fcast_info['forecast_origin_date']
+    c_target = c_fcast_info['target_month']
+except Exception:
+    c_origin = forecast_origin
+    c_target = target_period
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("**System Architecture:**")
 st.sidebar.markdown("- **Pipeline**: `StandardScaler -> ElasticNet`")
 st.sidebar.markdown("- **Validation**: Expanding-Window OOS CV")
-st.sidebar.markdown(f"- **Data Vintage**: Through `{forecast_origin}`")
+st.sidebar.markdown(f"- **Data Vintage**: Through `{c_origin}` ({selected_commodity})")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
@@ -79,13 +90,13 @@ st.sidebar.markdown(
 st.markdown("<div class='main-header'>GeoPrice — Market Overview</div>", unsafe_allow_html=True)
 st.markdown("<div class='sub-header'>Historical evidence + geopolitical context + machine-learning forecast</div>", unsafe_allow_html=True)
 
-# 1. Data Freshness Banner (Dynamic Dates)
+# 1. Data Freshness Banner (Dynamic Dates & Commodity Breakdown)
 st.info(
-    f"Data Vintage & Horizon Information\n\n"
-    f"- **GPR/GPRT/GPRA:** Through `{latest_gpr_date}`\n"
-    f"- **Commodity Prices:** Through `{latest_commodity_date}`\n"
-    f"- **DXY:** Through `{latest_dxy_date}`\n"
-    f"- **Forecast Origin:** `{forecast_origin}` | Target: `{target_period}`\n\n"
+    f"**Data Vintage & Horizon Information**\n\n"
+    f"- **GPR/GPRT/GPRA:** Monthly data through `{latest_gpr_date}` *(Common commodity regime analysis cutoff: `{comm_common_latest}`)*\n"
+    f"- **Commodity Prices:** Brent, Natural Gas, Copper, Wheat through `{comm_common_latest}` | Gold through `{gold_latest}`\n"
+    f"- **Macro Control (DXY):** Monthly data through `{latest_dxy_date}`\n"
+    f"- **Selected Commodity ({selected_commodity}) Forecast Origin:** `{c_origin}` | **Target Month:** `{c_target}`\n\n"
     f"*Release-aware availability rule applied; full historical vintage reconstruction not performed.*"
 )
 
