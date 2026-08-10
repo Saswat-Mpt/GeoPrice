@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import Tuple, Dict, Any, List
 
-COMMODITIES = ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
+from geoprice.constants import COMMODITIES
 
 def calculate_forward_commodity_responses(episodes_df: pd.DataFrame, df_full: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """

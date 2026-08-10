@@ -12,8 +12,10 @@ from geoprice.models.baseline import (
 )
 from geoprice.models.metrics import evaluate_all_metrics
 
-COMMON_GEOPOLITICAL_FEATURES = ['GPR', 'GPR_change', 'GPR_lag1', 'GPR_lag3', 'GPRT', 'GPRA']
-MACRO_CONTROL_FEATURES = ['DXY']
+from geoprice.constants import GEOPOLITICAL_FEATURES, MACRO_FEATURES
+
+COMMON_GEOPOLITICAL_FEATURES = list(GEOPOLITICAL_FEATURES)
+MACRO_CONTROL_FEATURES = list(MACRO_FEATURES)
 
 def get_geoprice_feature_names(commodity: str) -> List[str]:
     """Returns the full 11-feature list for GeoPrice model (4 commodity history + 6 GPR + 1 DXY)."""

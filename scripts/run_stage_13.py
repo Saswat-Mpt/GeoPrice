@@ -42,6 +42,16 @@ def run_phase_4_final_summary(test_pass_count: int):
         curr_pct = cdata['current_GPR_percentile']
         curr_reg = cdata['current_GPR_regime']
         curr_date = cdata['current_date']
+    # Load model evaluation metrics dynamically
+    if os.path.exists("data/processed/final_model_comparison.csv"):
+        comp_df = pd.read_csv("data/processed/final_model_comparison.csv")
+        gold_geo = comp_df[(comp_df['Commodity']=='Gold') & (comp_df['Model']=='GeoPrice')]['MAE'].values[0] * 100
+        gold_base = comp_df[(comp_df['Commodity']=='Gold') & (comp_df['Model']=='ElasticNet Baseline')]['MAE'].values[0] * 100
+        wheat_geo = comp_df[(comp_df['Commodity']=='Wheat') & (comp_df['Model']=='GeoPrice')]['MAE'].values[0] * 100
+        wheat_base = comp_df[(comp_df['Commodity']=='Wheat') & (comp_df['Model']=='ElasticNet Baseline')]['MAE'].values[0] * 100
+        stage9_desc = f"Geopolitical features did not provide consistent incremental forecasting value across all commodities. GeoPrice produced small MAE improvements for Gold ({gold_geo:.3f}% vs {gold_base:.3f}% Baseline) and Wheat ({wheat_geo:.3f}% vs {wheat_base:.3f}% Baseline), while the price-history baseline remained superior for Brent, Natural Gas, and Copper."
+    else:
+        stage9_desc = "Geopolitical features did not provide consistent incremental forecasting value across all commodities."
 
     summary_md = f"""# GeoPrice — Final Project Summary & Master Architecture Report
 
@@ -70,7 +80,7 @@ def run_phase_4_final_summary(test_pass_count: int):
 ### Phase 3 — Classical ML Forecasting & Validation (Stages 7-9)
 - **Stage 7 (Baseline Model)**: Price-history ElasticNet Baseline (4 features) using expanding-window time-series CV (`2006-2026`, N_OOS = 197-198 per commodity).
 - **Stage 8 (GeoPrice Model)**: Full GeoPrice Model (11 features) under identical pipeline (StandardScaler -> ElasticNet), dates, targets (next-month return), and evaluation metrics.
-- **Stage 9 (Final Evaluation & Validation)**: Geopolitical features did not provide consistent incremental forecasting value across all commodities. GeoPrice produced small MAE improvements for Gold (2.838% vs 2.856% Baseline) and Wheat (5.300% vs 5.302% Baseline), while the price-history baseline remained superior for Brent, Natural Gas, and Copper.
+- **Stage 9 (Final Evaluation & Validation)**: {stage9_desc}
 
 ### Phase 4 — Production Inference, Interpretability & Dashboard (Stages 10-13)
 - **Stage 10 (Production Pipeline & Inference)**: Production `.joblib` model artifacts exported to `models/`. Fast inference pipeline.

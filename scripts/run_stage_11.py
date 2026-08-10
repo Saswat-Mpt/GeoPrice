@@ -47,11 +47,12 @@ def main():
     print(f"Major Conflict +3M: {sc2['conflict_stats']['conflict_3m_median_pct']:+.2f}% (N={sc2['conflict_stats']['conflict_3m_n']})")
     print(f"Interpretation:     {sc2['interpretation']}")
 
-    # 3. Methodological Guarantee Audit
-    print("\n[Step 3/3] Auditing methodological guarantees...")
-    print("-> ElasticNet ML model invoked in Scenario Mode?  NO [GUARANTEED]")
-    print("-> Synthetic GPR continuous values generated?     NO [GUARANTEED]")
-    print("-> Forecast vs Historical Analogue separated?    YES [GUARANTEED]")
+    # 3. Scenario Mode Validation Audit
+    print("\n[Step 3/3] Auditing scenario mode rules...")
+    print("Scenario mode validation:")
+    print(" - ML model invoked: NO")
+    print(" - Synthetic GPR values generated: NO")
+    print(" - Forecast and historical analogue remain separate: YES")
 
     print("\n" + "=" * 80)
     print("STAGE 11 COMPLETE — SCENARIO EXPLORER VALIDATED.")

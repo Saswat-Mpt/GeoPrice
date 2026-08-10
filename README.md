@@ -12,8 +12,8 @@ PHASE 1: Data Collection, Alignment & Signature Feature Engineering
 └── Stage 2: Signature Feature Engineering (11 features per commodity; release-aware availability rule using the published monthly series; full historical vintage reconstruction is not performed.)
 
 PHASE 2: Descriptive Geopolitical Analysis & Historical Analogue
-├── Stage 3: Systematic GPR Shock Analysis (Top-decile positive ΔGPR; 17 non-overlapping episodes)
-├── Stage 4: Threats vs. Acts Analysis (GPRT and GPRA independent shock responses)
+├── Stage 3: Systematic GPR Shock Analysis (Top-decile positive ΔGPR; overlapping shocks collapsed into independent episodes)
+├── Stage 4: Threats vs. Acts Analysis (Independent GPRT and GPRA shock-response analysis)
 ├── Stage 5: Current GPR Regime & Historical Analogue (LOW/MODERATE/HIGH/EXTREME percentile regimes)
 └── Stage 6: Major Conflict Reference Cases (Systematic shock mapping: 9/11, 2003 Iraq, 2014 Crimea, 2022 Ukraine)
 

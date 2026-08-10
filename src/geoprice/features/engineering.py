@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 
 from geoprice.features.availability import apply_gpr_availability_rule, apply_dxy_availability_rule
-
-COMMODITIES = ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
+from geoprice.constants import COMMODITIES
 
 def calculate_returns(df: pd.DataFrame, commodity: str) -> pd.DataFrame:
     """
