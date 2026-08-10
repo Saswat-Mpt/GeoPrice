@@ -19,36 +19,60 @@ st.markdown("##### Historical Geopolitical Event Studies, Threat vs Act Differen
 
 st.markdown("---")
 
+from pathlib import Path
 import json
+import pandas as pd
 
-# Dynamically load thresholds & metadata
-gpr_thresh = 36.14
-if os.path.exists("data/processed/gpr_shock_threshold.json"):
-    with open("data/processed/gpr_shock_threshold.json") as f:
-        gpr_thresh = json.load(f).get('threshold', 36.14)
+DATA_DIR = Path("data/processed")
 
-gprt_thresh = 46.59
-if os.path.exists("data/processed/gprt_shock_threshold.json"):
-    with open("data/processed/gprt_shock_threshold.json") as f:
-        gprt_thresh = json.load(f).get('threshold', 46.59)
+GPR_THRESHOLD_FILE = DATA_DIR / "gpr_shock_threshold.json"
+GPRT_THRESHOLD_FILE = DATA_DIR / "gprt_shock_threshold.json"
+GPRA_THRESHOLD_FILE = DATA_DIR / "gpra_shock_threshold.json"
+SHOCK_EPISODES_FILE = DATA_DIR / "shock_episodes.csv"
+ALIGNED_FILE = DATA_DIR / "monthly_aligned.csv"
 
-gpra_thresh = 36.33
-if os.path.exists("data/processed/gpra_shock_threshold.json"):
-    with open("data/processed/gpra_shock_threshold.json") as f:
-        gpra_thresh = json.load(f).get('threshold', 36.33)
+required_files = [
+    GPR_THRESHOLD_FILE,
+    GPRT_THRESHOLD_FILE,
+    GPRA_THRESHOLD_FILE,
+    SHOCK_EPISODES_FILE,
+]
 
-episodes_count = 17
-if os.path.exists("data/processed/shock_episodes.csv"):
-    episodes_df = pd.read_csv("data/processed/shock_episodes.csv")
-    episodes_count = len(episodes_df)
+missing_files = [str(f) for f in required_files if not f.exists()]
 
-start_date, end_date = "1992-01", "2026-06"
-if os.path.exists("data/processed/monthly_aligned.csv"):
-    df_aligned = pd.read_csv("data/processed/monthly_aligned.csv")
+if missing_files:
+    st.error(
+        "Required Phase 2 outputs are missing. "
+        "Run Stages 3–4 before launching the dashboard."
+    )
+    st.stop()
+
+with open(GPR_THRESHOLD_FILE, "r", encoding="utf-8") as f:
+    gpr_info = json.load(f)
+
+with open(GPRT_THRESHOLD_FILE, "r", encoding="utf-8") as f:
+    gprt_info = json.load(f)
+
+with open(GPRA_THRESHOLD_FILE, "r", encoding="utf-8") as f:
+    gpra_info = json.load(f)
+
+shock_episodes = pd.read_csv(SHOCK_EPISODES_FILE)
+
+gpr_thresh = float(gpr_info["threshold"])
+gprt_thresh = float(gprt_info["threshold"])
+gpra_thresh = float(gpra_info["threshold"])
+
+episodes_count = len(shock_episodes)
+
+# Derive common analysis window dates from monthly aligned dataset
+if ALIGNED_FILE.exists():
+    df_aligned = pd.read_csv(ALIGNED_FILE)
     valid_df = df_aligned.dropna(subset=['GPR', 'Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat'])
-    if len(valid_df) > 0:
-        start_date = valid_df['Date'].iloc[0]
-        end_date = valid_df['Date'].iloc[-1]
+    start_date = valid_df['Date'].iloc[0]
+    end_date = valid_df['Date'].iloc[-1]
+else:
+    start_date = "1992-01"
+    end_date = "2026-06"
 
 # 1. Systematic Shock Analysis
 st.subheader("1. Systematic GPR Shock Analysis (Phase 2 Stage 3)")
