@@ -1,15 +1,19 @@
 """
 Automated unit tests for GeoPrice hyperparameter tuning, GPR_z12 trailing feature,
-feature ablation, leakage prevention, and directional classification model.
+feature ablation, leakage prevention, directional classification model, and production model tuning.
 """
 
 import pytest
+import os
+import json
+import joblib
 import numpy as np
 import pandas as pd
 from geoprice.features.engineering import create_geopolitical_features, build_feature_dataset
 from geoprice.models.tuning import select_best_elasticnet_params, select_best_logistic_c, select_best_hgb_params
 from geoprice.models.baseline import get_baseline_feature_names, create_next_month_target
 from geoprice.models.geoprice import get_geoprice_feature_names
+from geoprice.inference.pipeline import predict_next_month
 from geoprice.constants import ALPHA_GRID, L1_RATIO_GRID, LOGISTIC_C_GRID, MIN_TRAIN_MONTHS
 
 def test_gpr_z12_no_future_leakage():
@@ -92,27 +96,37 @@ def test_target_definitions():
     assert set(t_bin.dropna().unique()).issubset({0, 1})
 
 def test_beta_z_exact_reconstruction():
-    """Tests exact prediction reconstruction (Prediction == Intercept + sum(beta * z))."""
-    coef_df = pd.read_csv("data/processed/geoprice_coefficients.csv")
-    pred_df = pd.read_csv("data/processed/geoprice_predictions.csv")
-    
-    for c in ["Brent", "Gold"]:
-        c_coefs = coef_df[coef_df['Commodity'] == c]
-        intercept = c_coefs[c_coefs['Feature'] == 'Intercept']['Coefficient'].values[0]
-        c_preds = pred_df[pred_df['Commodity'] == c]
+    """Tests exact prediction reconstruction: abs(Reconstructed - Model_Prediction) < 1e-10."""
+    for c in ["Brent", "Natural_Gas", "Gold", "Copper", "Wheat"]:
+        res = predict_next_month(c)
+        pipeline = joblib.load(f"models/{c.lower()}_model.joblib")
+        scaler = pipeline.named_steps['scaler']
+        model_obj = pipeline.named_steps['model']
         
-        # Test refit prediction matches intercept + sum(beta*z) logic
-        assert pd.notna(intercept) and len(c_preds) > 0
+        feat_cols = get_geoprice_feature_names(c)
+        feat_raw = np.array([res["feature_values"][col] for col in feat_cols]).reshape(1, -1)
+        
+        feat_z = scaler.transform(feat_raw)[0]
+        intercept = float(model_obj.intercept_)
+        coefs = model_obj.coef_
+        
+        reconstructed_pred = intercept + float(np.sum(coefs * feat_z))
+        actual_pred = res["predicted_return_decimal"]
+        
+        diff = abs(reconstructed_pred - actual_pred)
+        assert diff < 1e-10, f"Reconstruction mismatch for {c}: diff={diff}"
 
 def test_no_nans_in_model_matrix():
-    """Tests that final model feature dataset contains no NaNs for Phase 3 evaluation period."""
+    """Tests that valid complete feature rows contain no NaNs for evaluation period through latest complete month."""
     feat_df = pd.read_csv("data/processed/feature_dataset.csv")
     feat_df['Year'] = pd.to_datetime(feat_df['Date']).dt.year
     geo_feats = get_geoprice_feature_names("Brent")
     
-    # Phase 3 evaluation range: 2006 to 2025
-    eval_df = feat_df[(feat_df['Year'] >= 2006) & (feat_df['Year'] <= 2025)]
-    assert not eval_df[geo_feats].isna().any().any(), "NaNs detected in Phase 3 model matrix!"
+    # Filter to complete feature rows (dropping tail unreleased partial rows)
+    valid_df = feat_df.dropna(subset=geo_feats).copy()
+    eval_df = valid_df[(valid_df['Year'] >= 2006) & (valid_df['Year'] <= valid_df['Year'].max())]
+    assert not eval_df[geo_feats].isna().any().any(), "NaNs detected in valid complete model matrix!"
+    assert eval_df['Year'].max() >= 2026, "Evaluation matrix must cover data into 2026"
 
 def test_elasticnet_tuning_deterministic():
     """Tests that tuning produces consistent results across calls with same seed."""
@@ -169,3 +183,15 @@ def test_paired_error_uncertainty_structure():
     assert len(paired_df) == 5, f"Expected 5 commodities, got {len(paired_df)}"
     for _, r in paired_df.iterrows():
         assert r["CI_95_Lower"] <= r["Mean_Paired_Diff"] <= r["CI_95_Upper"], "Mean paired difference must fall within 95% CI bounds"
+
+def test_production_model_uses_tuned_parameters():
+    """Tests that production models use tuned hyperparameters recorded in model_metadata.json."""
+    meta_path = "models/model_metadata.json"
+    assert os.path.exists(meta_path), "model_metadata.json missing"
+    with open(meta_path) as f:
+        meta = json.load(f)
+    
+    for c in ["Brent", "Natural_Gas", "Gold", "Copper", "Wheat"]:
+        c_meta = meta["commodities"][c]
+        assert "selected_alpha" in c_meta and c_meta["selected_alpha"] in ALPHA_GRID
+        assert "selected_l1_ratio" in c_meta and c_meta["selected_l1_ratio"] in L1_RATIO_GRID

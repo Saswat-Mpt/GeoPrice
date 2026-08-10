@@ -9,11 +9,11 @@ Phase 3 evaluated out-of-sample monthly commodity return predictions using **exp
 
 | Commodity | Baseline MAE | GeoPrice MAE | MAE Improvement | Baseline DA | GeoPrice DA | DA Improvement |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Brent** | 6.24% | 6.30% | -0.98% | 55.3% | 54.3% | -1.0 pts |
-| **Natural_Gas** | 9.34% | 9.63% | -3.15% | 49.7% | 50.3% | +0.5 pts |
-| **Gold** | 2.86% | 2.84% | +0.61% | 53.8% | 53.8% | +0.0 pts |
-| **Copper** | 3.59% | 3.67% | -2.25% | 54.8% | 55.3% | +0.5 pts |
-| **Wheat** | 5.30% | 5.30% | +0.04% | 55.8% | 56.3% | +0.5 pts |
+| **Brent** | 6.34% | 6.29% | +0.89% | 53.8% | 55.8% | +2.0 pts |
+| **Natural_Gas** | 9.30% | 9.31% | -0.05% | 52.8% | 51.3% | -1.5 pts |
+| **Gold** | 2.85% | 2.85% | +0.08% | 53.8% | 53.8% | +0.0 pts |
+| **Copper** | 3.58% | 3.66% | -2.11% | 55.8% | 53.8% | -2.0 pts |
+| **Wheat** | 5.27% | 5.37% | -1.88% | 56.3% | 49.2% | -7.1 pts |
 
 ## 3. Key Data-Driven & Methodological Conclusions
 1. **Gold**: Gold showed a marginal reduction in out-of-sample MAE relative to the baseline (2.84% vs 2.86%), but the difference is minor (0.02 percentage points) and should not be interpreted as strong evidence of incremental predictive power.

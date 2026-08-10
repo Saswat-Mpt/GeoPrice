@@ -2,8 +2,7 @@
     "project": "GeoPrice",
     "version": "1.0.0",
     "pipeline": "StandardScaler -> ElasticNet",
-    "alpha": 0.01,
-    "l1_ratio": 0.5,
+    "hyperparameter_tuning_method": "TimeSeriesSplit Inner Cross-Validation",
     "sklearn_version": "1.9.0",
     "python_version": "3.12.6",
     "commodities": {
@@ -22,6 +21,8 @@
                 "GPRA",
                 "DXY"
             ],
+            "selected_alpha": 0.03,
+            "selected_l1_ratio": 0.5,
             "training_samples": 245,
             "training_start": "2006-01",
             "training_end": "2026-05"
@@ -41,6 +42,8 @@
                 "GPRA",
                 "DXY"
             ],
+            "selected_alpha": 0.03,
+            "selected_l1_ratio": 0.5,
             "training_samples": 245,
             "training_start": "2006-01",
             "training_end": "2026-05"
@@ -60,6 +63,8 @@
                 "GPRA",
                 "DXY"
             ],
+            "selected_alpha": 0.01,
+            "selected_l1_ratio": 0.5,
             "training_samples": 246,
             "training_start": "2006-01",
             "training_end": "2026-06"
@@ -79,6 +84,8 @@
                 "GPRA",
                 "DXY"
             ],
+            "selected_alpha": 0.03,
+            "selected_l1_ratio": 0.5,
             "training_samples": 245,
             "training_start": "2006-01",
             "training_end": "2026-05"
@@ -98,6 +105,8 @@
                 "GPRA",
                 "DXY"
             ],
+            "selected_alpha": 0.03,
+            "selected_l1_ratio": 0.9,
             "training_samples": 245,
             "training_start": "2006-01",
             "training_end": "2026-05"

@@ -25,7 +25,7 @@
 ### Phase 3 — Classical ML Forecasting & Validation (Stages 7-9)
 - **Stage 7 (Baseline Model)**: Price-history ElasticNet Baseline (4 features) using expanding-window time-series CV (`2006-2026`, N_OOS = 197-198 per commodity).
 - **Stage 8 (GeoPrice Model)**: Full GeoPrice Model (11 features) under identical pipeline (StandardScaler -> ElasticNet), dates, targets (next-month return), and evaluation metrics.
-- **Stage 9 (Final Evaluation & Validation)**: Geopolitical features did not provide consistent incremental forecasting value across all commodities. GeoPrice produced small MAE improvements for Gold (2.838% vs 2.856% Baseline) and Wheat (5.300% vs 5.302% Baseline), while the price-history baseline remained superior for Brent, Natural Gas, and Copper.
+- **Stage 9 (Final Evaluation & Validation)**: Geopolitical features provide commodity-dependent incremental information, with improvements concentrated in Brent Oil and Gold, while price history dominates short-term return error magnitudes for Natural Gas, Copper, and Wheat.
 
 ### Phase 4 — Production Inference, Interpretability & Dashboard (Stages 10-13)
 - **Stage 10 (Production Pipeline & Inference)**: Production `.joblib` model artifacts exported to `models/`. Fast inference pipeline.
@@ -41,7 +41,7 @@
 - **Phase 2 Status**: `VALIDATED` (Stages 3-6)
 - **Phase 3 Status**: `VALIDATED` (Stages 7-9)
 - **Phase 4 Status**: `VALIDATED` (Stages 10-13)
-- **Automated Unit Test Suite**: `78/78 PASSED` (100% pass rate)
+- **Automated Unit Test Suite**: `79/79 PASSED` (100% pass rate)
 
 ---
 

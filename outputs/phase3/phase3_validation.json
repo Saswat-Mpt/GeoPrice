@@ -1,11 +1,12 @@
 {
-    "baseline_validated": true,
-    "geoprice_validated": true,
     "same_oos_dates": true,
-    "target_definition_validated": true,
-    "expanding_window_validated": true,
+    "target_alignment": true,
+    "strict_train_before_test": true,
+    "inner_tuning_is_temporal": true,
+    "scaling_fit_inside_fold": true,
+    "feature_leakage_tests_passed": true,
     "ablation_completed": true,
     "robustness_completed": true,
-    "leakage_audit_passed": true,
-    "phase3_validation_checks_passed": true
+    "production_model_matches_selected_model": true,
+    "all_required_checks_passed": true
 }

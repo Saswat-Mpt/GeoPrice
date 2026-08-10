@@ -8,6 +8,7 @@ Every OOS forecast month:
   4. Predict month t
 
 No model caching. No stale predictions. Fully auditable annual hyperparameter logs.
+Exports tuned predictions for Stage 9 and downstream production evaluation.
 """
 
 import sys
@@ -65,6 +66,11 @@ def run_tuning_suite():
     ablation_rows = []
     directional_rows = []
     selected_params_log = []
+
+    all_tuned_base_preds = []
+    all_tuned_geo_preds = []
+    all_tuned_base_metrics = []
+    all_tuned_geo_metrics = []
 
     for c in COMMODITIES:
         print(f"\nEvaluating commodity: {c}...")
@@ -148,6 +154,13 @@ def run_tuning_suite():
             # -----------------------------------------------------------
             pred_tb = _fit_predict_elasticnet(X_tr_b, y_train, X_te_b, best_a_b, best_l1_b)
             preds_tuned_base.append(pred_tb)
+            all_tuned_base_preds.append({
+                "Date": forecast_date,
+                "Commodity": c,
+                "Actual_Return": y_test,
+                "Predicted_Return": pred_tb,
+                "Absolute_Error": abs(y_test - pred_tb)
+            })
 
             # -----------------------------------------------------------
             # 3. Fixed GeoPrice (alpha=0.01, l1_ratio=0.5)
@@ -160,6 +173,13 @@ def run_tuning_suite():
             # -----------------------------------------------------------
             pred_tg = _fit_predict_elasticnet(X_tr_g, y_train, X_te_g, best_a_g, best_l1_g)
             preds_tuned_geo.append(pred_tg)
+            all_tuned_geo_preds.append({
+                "Date": forecast_date,
+                "Commodity": c,
+                "Actual_Return": y_test,
+                "Predicted_Return": pred_tg,
+                "Absolute_Error": abs(y_test - pred_tg)
+            })
 
             # -----------------------------------------------------------
             # 5. HGB GeoPrice (sensible fixed defaults, refit every month)
@@ -216,13 +236,15 @@ def run_tuning_suite():
         y_act = dataset.iloc[MIN_TRAIN_MONTHS:]['Target'].values
 
         m_fb = evaluate_all_metrics(y_act, np.array(preds_fixed_base), "Fixed Baseline", c)
-        m_tb = evaluate_all_metrics(y_act, np.array(preds_tuned_base), "Tuned Baseline", c)
+        m_tb = evaluate_all_metrics(y_act, np.array(preds_tuned_base), "ElasticNet Baseline", c)
         m_fg = evaluate_all_metrics(y_act, np.array(preds_fixed_geo), "Fixed GeoPrice", c)
-        m_tg = evaluate_all_metrics(y_act, np.array(preds_tuned_geo), "Tuned GeoPrice", c)
+        m_tg = evaluate_all_metrics(y_act, np.array(preds_tuned_geo), "GeoPrice Model", c)
         m_hgb_d = evaluate_all_metrics(y_act, np.array(preds_hgb_default), "HGB GeoPrice", c)
         m_hgb_t = evaluate_all_metrics(y_act, np.array(preds_hgb_tuned), "Tuned HGB GeoPrice", c)
 
         experiments_rows.extend([m_fb, m_tb, m_fg, m_tg, m_hgb_d, m_hgb_t])
+        all_tuned_base_metrics.append(m_tb)
+        all_tuned_geo_metrics.append(m_tg)
 
         # ---------------------------------------------------------------
         # Feature Ablation Suite (fixed ElasticNet alpha=0.01, l1=0.5)
@@ -290,6 +312,7 @@ def run_tuning_suite():
 
     # Save all outputs
     os.makedirs("outputs/phase3", exist_ok=True)
+    os.makedirs("data/processed", exist_ok=True)
 
     df_exp = pd.DataFrame(experiments_rows)
     df_exp.to_csv("outputs/phase3/tuning_experiments_comparison.csv", index=False)
@@ -302,6 +325,12 @@ def run_tuning_suite():
 
     df_params = pd.DataFrame(selected_params_log)
     df_params.to_csv("outputs/phase3/selected_hyperparameters.csv", index=False)
+
+    # Save tuned predictions and metrics to data/processed/ for Stage 9 and production downstream
+    pd.DataFrame(all_tuned_base_preds).to_csv("data/processed/baseline_predictions.csv", index=False)
+    pd.DataFrame(all_tuned_geo_preds).to_csv("data/processed/geoprice_predictions.csv", index=False)
+    pd.DataFrame(all_tuned_base_metrics).to_csv("data/processed/baseline_metrics.csv", index=False)
+    pd.DataFrame(all_tuned_geo_metrics).to_csv("data/processed/geoprice_metrics.csv", index=False)
 
     print("\n" + "=" * 80)
     print("WALK-FORWARD OOS EVALUATION COMPLETE")
