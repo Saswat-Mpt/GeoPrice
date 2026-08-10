@@ -1,10 +1,10 @@
 {
     "variable": "GPRA",
-    "total_valid_changes": 498,
-    "positive_change_count": 243,
+    "total_valid_changes": 413,
+    "positive_change_count": 201,
     "percentile": 90.0,
-    "threshold": 37.20407104492188,
+    "threshold": 36.33421325683592,
     "min_pos_change": 0.10062026977539062,
     "max_pos_change": 766.285285949707,
-    "median_pos_change": 12.394294738769545
+    "median_pos_change": 11.881362915039062
 }

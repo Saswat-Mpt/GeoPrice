@@ -160,3 +160,42 @@ def load_world_bank_commodities(local_path: str = LOCAL_WB_PATH) -> pd.DataFrame
     out_df = out_df.sort_values('Period').drop_duplicates(subset=['Period'])
     out_df = out_df.set_index('Period')
     return out_df
+
+def load_world_bank_gold(local_path: str = LOCAL_WB_PATH) -> pd.DataFrame:
+    """Loads Gold price series from World Bank Pink Sheet. Returns DataFrame indexed by Period with column 'Gold'."""
+    # Use the same parsing as load_world_bank_commodities but only extract Gold
+    file_path = download_world_bank_if_missing(local_path)
+    df_raw = pd.read_excel(file_path, sheet_name='Monthly Prices', header=None)
+    col_names = df_raw.iloc[3].values
+    units_names = df_raw.iloc[4].values
+    
+    gold_idx = None
+    for idx in range(df_raw.shape[1]):
+        c_name = str(col_names[idx]) if pd.notna(col_names[idx]) else ""
+        c_unit = str(units_names[idx]) if pd.notna(units_names[idx]) else ""
+        combined = f"{c_name} {c_unit}".strip().lower()
+        if 'gold' in combined:
+            gold_idx = idx
+            break
+    if gold_idx is None:
+        raise KeyError("Could not find Gold column in World Bank Pink Sheet")
+    
+    data_rows = df_raw.iloc[5:].copy()
+    data_rows.rename(columns={0: 'Date_Raw'}, inplace=True)
+    
+    def parse_wb_date(d):
+        if pd.isna(d) or not isinstance(d, str):
+            return pd.NaT
+        d = d.strip()
+        if len(d) == 7 and 'M' in d:
+            parts = d.split('M')
+            return pd.Period(f"{parts[0]}-{parts[1]}", freq='M')
+        return pd.NaT
+    
+    data_rows['Period'] = data_rows['Date_Raw'].apply(parse_wb_date)
+    valid_df = data_rows.dropna(subset=['Period']).copy()
+    
+    out_df = pd.DataFrame({'Period': valid_df['Period']})
+    out_df['Gold'] = pd.to_numeric(valid_df[gold_idx], errors='coerce')
+    out_df = out_df.sort_values('Period').drop_duplicates(subset=['Period']).set_index('Period')
+    return out_df

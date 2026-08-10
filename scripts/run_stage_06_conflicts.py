@@ -75,6 +75,12 @@ def run_phase_2_checkpoint():
     with open("outputs/phase2/phase2_validation.json", "w") as f:
         json.dump(phase2_val, f, indent=4)
 
+    df_aligned = pd.read_csv("data/processed/monthly_aligned.csv")
+    valid_df = df_aligned.dropna(subset=['GPR', 'Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat'])
+    valid_start = valid_df['Date'].iloc[0]
+    valid_end = valid_df['Date'].iloc[-1]
+    num_months = len(valid_df)
+    
     summary_md = f"""# GeoPrice — Phase 2 Summary & Final Checkpoint
 
 ## 1. Executive Summary
@@ -83,7 +89,7 @@ Phase 2 evaluated the historical descriptive relationship between geopolitical r
 ## 2. Key Analytical Findings
 
 ### Stage 3 — Systematic GPR Shock Analysis
-- **Analysis Window**: 1985-01 -> 2026-07 (499 months)
+- **Analysis Window**: {valid_start} -> {valid_end} ({num_months} months)
 - **Positive Delta GPR Cutoff (90th Pct)**: **{gpr_meta['threshold']:.2f}**
 - **Raw Shock Months**: {gpr_meta['threshold']} -> **{len(episodes_df)} non-overlapping shock episodes**
 - **Finding**: Commodity responses following GPR shocks vary by commodity. Brent and Wheat exhibited modest post-shock negative return drift, while Natural Gas and Gold showed positive median responses over +3M horizons.
@@ -95,8 +101,8 @@ Phase 2 evaluated the historical descriptive relationship between geopolitical r
 
 ### Stage 5 — Current GPR Regime & Historical Analogue
 - **Empirical Cutoff Thresholds**: P50 = 92.8, P75 = 113.5, P90 = 146.7
-- **Current Situation (2026-07)**: GPR = **{regime_meta['current_GPR']:.2f}** ({regime_meta['current_GPR_percentile']:.0f}th percentile) -> **{regime_meta['current_GPR_regime']}** Regime.
-- **Historical Analogue**: 21 representative historical episodes in the EXTREME regime (1985-2026).
+- **Current Situation ({valid_end})**: GPR = **{regime_meta['current_GPR']:.2f}** ({regime_meta['current_GPR_percentile']:.0f}th percentile) -> **{regime_meta['current_GPR_regime']}** Regime.
+- **Historical Analogue**: 21 representative historical episodes in the EXTREME regime ({valid_start.split('-')[0]}-{valid_end.split('-')[0]}).
 
 ### Stage 6 — Major Conflict Reference Cases
 - **Selected Documented References**: {len(conflicts_df)} systematic shock episodes (9/11 Attacks, 2003 Iraq Invasion, 2014 Crimea Crisis, 2022 Russia-Ukraine Invasion).

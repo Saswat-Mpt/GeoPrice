@@ -7,8 +7,8 @@ import numpy as np
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 from geoprice.data.gpr import load_gpr
-from geoprice.data.world_bank import inspect_world_bank_gold, load_world_bank_commodities
-from geoprice.data.fred import aggregate_dxy_monthly
+from geoprice.data.world_bank import inspect_world_bank_gold, load_world_bank_commodities, load_world_bank_gold
+from geoprice.data.fred import aggregate_dxy_monthly, load_fred_commodities
 from geoprice.data.alignment import align_datasets, validate_aligned_data, REQUIRED_COLUMNS
 
 def test_gpr_loading():
@@ -31,11 +31,20 @@ def test_world_bank_gold_inspection():
     assert gold_info['first_valid_date'] <= '1985-01'
 
 def test_world_bank_commodities_loading():
-    """Verify World Bank commodity loader returns all 5 required commodity series."""
-    df_comm = load_world_bank_commodities()
+    """Verify World Bank commodity loader returns Gold."""
+    df_gold = load_world_bank_gold()
+    assert isinstance(df_gold, pd.DataFrame)
+    assert isinstance(df_gold.index, pd.PeriodIndex)
+    assert 'Gold' in df_gold.columns
+    assert pd.api.types.is_numeric_dtype(df_gold['Gold'])
+    assert df_gold['Gold'].notna().sum() > 400
+
+def test_fred_commodities_loading():
+    """Verify FRED commodity loader returns all 4 required commodity series."""
+    df_comm = load_fred_commodities()
     assert isinstance(df_comm, pd.DataFrame)
     assert isinstance(df_comm.index, pd.PeriodIndex)
-    expected_cols = ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
+    expected_cols = ['Brent', 'Natural_Gas', 'Copper', 'Wheat']
     for c in expected_cols:
         assert c in df_comm.columns
         assert pd.api.types.is_numeric_dtype(df_comm[c])
@@ -80,4 +89,6 @@ def test_dxy_missingness_preserves_pre_2006_history():
     # GPR starts in 1985-01, check active GPR window pre-2001
     gpr_active_pre_2001 = aligned_df[(aligned_df['Date'] >= '1985-01') & (aligned_df['Date'] < '2001-01')]
     assert gpr_active_pre_2001['GPR'].notna().all(), "GPR should be valid during 1985-2001!"
-    assert gpr_active_pre_2001['Brent'].notna().all(), "Brent should be valid pre-2001!"
+    # FRED Brent starts ~1992, so check it's valid from 1992-2001
+    brent_1992_to_2001 = aligned_df[(aligned_df['Date'] >= '1992-01') & (aligned_df['Date'] < '2001-01')]
+    assert brent_1992_to_2001['Brent'].notna().all(), "Brent should be valid from 1992-2001!"

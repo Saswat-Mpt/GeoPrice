@@ -4,6 +4,7 @@ import json
 import joblib
 import pandas as pd
 import numpy as np
+import sklearn
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
@@ -35,6 +36,8 @@ def main():
         "pipeline": "StandardScaler -> ElasticNet",
         "alpha": 0.01,
         "l1_ratio": 0.5,
+        "sklearn_version": sklearn.__version__,
+        "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         "commodities": {}
     }
 

@@ -29,7 +29,9 @@ def generate_figures(df_full: pd.DataFrame, raw_shocks: pd.DataFrame, threshold_
     raw_gprs = raw_shocks['GPR']
     plt.scatter(raw_dates, raw_gprs, color='#d62728', zorder=5, label='Top-Decile GPR Shocks', s=35)
     
-    plt.title("Caldara-Iacoviello Geopolitical Risk Index (GPR) & Identified Shock Events (1985-2026)", fontsize=12, fontweight='bold')
+    valid_start = df_full['Date'].iloc[0]
+    valid_end = df_full['Date'].iloc[-1]
+    plt.title(f"Caldara-Iacoviello Geopolitical Risk Index (GPR) & Identified Shock Events ({valid_start} to {valid_end})", fontsize=12, fontweight='bold')
     plt.xlabel("Date", fontsize=10)
     plt.ylabel("GPR Level", fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.5)

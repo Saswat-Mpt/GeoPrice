@@ -4,6 +4,8 @@
     "pipeline": "StandardScaler -> ElasticNet",
     "alpha": 0.01,
     "l1_ratio": 0.5,
+    "sklearn_version": "1.9.0",
+    "python_version": "3.12.6",
     "commodities": {
         "Brent": {
             "model_file": "brent_model.joblib",
@@ -20,9 +22,9 @@
                 "GPRA",
                 "DXY"
             ],
-            "training_samples": 246,
+            "training_samples": 245,
             "training_start": "2006-01",
-            "training_end": "2026-06"
+            "training_end": "2026-05"
         },
         "Natural_Gas": {
             "model_file": "natural_gas_model.joblib",
@@ -39,9 +41,9 @@
                 "GPRA",
                 "DXY"
             ],
-            "training_samples": 246,
+            "training_samples": 245,
             "training_start": "2006-01",
-            "training_end": "2026-06"
+            "training_end": "2026-05"
         },
         "Gold": {
             "model_file": "gold_model.joblib",
@@ -77,9 +79,9 @@
                 "GPRA",
                 "DXY"
             ],
-            "training_samples": 246,
+            "training_samples": 245,
             "training_start": "2006-01",
-            "training_end": "2026-06"
+            "training_end": "2026-05"
         },
         "Wheat": {
             "model_file": "wheat_model.joblib",
@@ -96,9 +98,9 @@
                 "GPRA",
                 "DXY"
             ],
-            "training_samples": 246,
+            "training_samples": 245,
             "training_start": "2006-01",
-            "training_end": "2026-06"
+            "training_end": "2026-05"
         }
     }
 }

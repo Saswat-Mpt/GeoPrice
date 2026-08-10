@@ -89,7 +89,7 @@ def create_feature_dictionary(feature_df: pd.DataFrame) -> pd.DataFrame:
         {"Feature_Name": "GPRA", "Group": "Geopolitical", "Definition": "Geopolitical Acts subindex level (GPRA_t)", "Source": "Caldara-Iacoviello", "Window": "Current Month", "Availability_Rule": "Release-aware point-in-time", "Expected_Missingness": "Missing pre-1985"},
         
         # Macro Control
-        {"Feature_Name": "DXY", "Group": "Macro Control", "Definition": "Monthly arithmetic mean U.S. Dollar Index", "Source": "FRED / Yahoo", "Window": "Current Month", "Availability_Rule": "Point-in-time control", "Expected_Missingness": "Missing pre-2001"},
+        {"Feature_Name": "DXY", "Group": "Macro Control", "Definition": "Monthly arithmetic mean U.S. Dollar Index", "Source": "FRED", "Window": "Current Month", "Availability_Rule": "Point-in-time control", "Expected_Missingness": "Missing pre-2001"},
     ]
     
     # Commodity features for each commodity

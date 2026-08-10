@@ -67,10 +67,19 @@ def main():
     print("[X] Stage 1 raw sources verified")
     print("[X] Gold workbook correctly identified")
     print("[X] Five commodities aligned (Brent, Natural Gas, Gold, Copper, Wheat)")
-    print("[X] GPR/GPRT/GPRA aligned (1985-2026)")
-    print("[X] DXY aligned (2001-2026)")
-    print("[X] Phase 2 common window verified (1992-2026)")
-    print("[X] Phase 3 DXY-supported window verified (2006-2026)")
+    df_tmp = pd.read_csv('data/processed/monthly_aligned.csv')
+    gpr_valid = df_tmp.dropna(subset=['GPR'])
+    gpr_start, gpr_end = gpr_valid['Date'].iloc[0], gpr_valid['Date'].iloc[-1]
+    print(f"[X] GPR/GPRT/GPRA aligned ({gpr_start} to {gpr_end})")
+    dxy_valid = df_tmp.dropna(subset=['DXY'])
+    dxy_start, dxy_end = dxy_valid['Date'].iloc[0], dxy_valid['Date'].iloc[-1]
+    print(f"[X] DXY aligned ({dxy_start} to {dxy_end})")
+    comm_cols = ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
+    comm_starts = [df_tmp.dropna(subset=[c])['Date'].iloc[0] for c in comm_cols]
+    common_start = max(comm_starts)
+    common_end = df_tmp.dropna(subset=comm_cols)['Date'].iloc[-1]
+    print(f"[X] Phase 2 common window verified ({common_start} to {common_end})")
+    print(f"[X] Phase 3 DXY-supported window verified ({dxy_start} to {dxy_end})")
     print("[X] Exactly 11 features per commodity constructed")
     print("[X] No future leakage verified via explicit unit test")
     print("[X] Point-in-time availability rules documented")

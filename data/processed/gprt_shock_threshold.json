@@ -1,10 +1,10 @@
 {
     "variable": "GPRT",
-    "total_valid_changes": 498,
-    "positive_change_count": 248,
+    "total_valid_changes": 413,
+    "positive_change_count": 207,
     "percentile": 90.0,
-    "threshold": 46.42294158935549,
+    "threshold": 46.591021728515635,
     "min_pos_change": 0.0822906494140625,
-    "max_pos_change": 271.3938674926757,
-    "median_pos_change": 12.880050659179688
+    "max_pos_change": 204.93754196166992,
+    "median_pos_change": 12.430740356445327
 }

@@ -9,7 +9,7 @@ GeoPrice is a classical machine-learning and empirical event-study system design
 ```text
 PHASE 1: Data Collection, Alignment & Signature Feature Engineering
 ├── Stage 1: Data Collection & Alignment (Caldara-Iacoviello GPR, Pink Sheet Commodities, FRED DTWEXBGS DXY)
-└── Stage 2: Signature Feature Engineering (11 features per commodity; release-aware availability rules documented and validated)
+└── Stage 2: Signature Feature Engineering (11 features per commodity; Release-aware availability rule using the published monthly series; full historical vintage reconstruction is not performed.)
 
 PHASE 2: Descriptive Geopolitical Analysis & Historical Analogue
 ├── Stage 3: Systematic GPR Shock Analysis (Top-decile ΔGPR ≥ 37.49, 21 non-overlapping episodes)
@@ -40,11 +40,13 @@ streamlit run app.py
 
 ### 2. Update Data & Retrain Models
 ```bash
-# Refresh data pipeline & run full validation
-python scripts/update_data.py
-
-# Retrain and export production .joblib model artifacts
-python scripts/retrain_models.py
+# Full pipeline refresh:
+python scripts/update_data.py        # Stages 1-9
+python scripts/retrain_models.py      # Retrain .joblib artifacts
+python scripts/run_stage_10.py        # Production inference
+python scripts/run_stage_11.py        # Scenario lookup tables
+python scripts/run_stage_12.py        # Coefficient interpretation
+python scripts/run_stage_13.py        # Dashboard validation & final report
 ```
 
 ### 3. Run Stage Runner Scripts
@@ -64,14 +66,14 @@ python scripts/run_stage_12.py
 python scripts/run_stage_13.py
 ```
 
-### 4. Execute Full Automated Unit Test Suite (61 Tests)
+### 4. Execute Full Automated Unit Test Suite
 ```bash
 python -m pytest tests/ -v
 ```
 
 ---
 
-## 📈 Key Out-of-Sample Performance Summary (2010–2026, N=198 per commodity)
+## 📈 Key Out-of-Sample Performance Summary (Training: 2006+, OOS evaluation: ~2010-2026, N=198 per commodity)
 
 | Commodity | Naive MAE | Baseline MAE | GeoPrice MAE | Naive DA | Baseline DA | GeoPrice DA | Key Finding |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
@@ -88,7 +90,16 @@ python -m pytest tests/ -v
 ## 📚 Data Source Citations & Disclaimers
 
 1. **Geopolitical Risk Index (GPR/GPRT/GPRA)**: Caldara, Dario, and Matteo Iacoviello (2022), "Measuring Geopolitical Risk," *American Economic Review*, 112(4), 1194–1225.
-2. **Commodity Prices**: World Bank Commodity Price Data ("Pink Sheet") for Gold (`Col 69`); FRED / World Bank Primary Commodity Price series for Brent, Natural Gas, Copper, Wheat (`1960`–`2026`).
-3. **Trade-Weighted U.S. Dollar Index (DXY)**: Federal Reserve Bank of St. Louis (FRED) `DTWEXBGS` daily series resampled via monthly arithmetic mean.
+2. **Commodity Prices**: FRED (Federal Reserve Bank of St. Louis) for Brent (POILBREUSDM), Natural Gas (PNGASUSUSDM), Copper (PCOPPUSDM), Wheat (PWHEAMTUSDM); World Bank Pink Sheet for Gold.
+3. **Trade-Weighted U.S. Dollar Index (DXY)**: Federal Reserve Bank of St. Louis (FRED) DTWEXBGS.
+
+| Asset | Source |
+| :--- | :--- |
+| Brent | FRED POILBREUSDM |
+| Natural Gas | FRED PNGASUSUSDM |
+| Gold | World Bank Pink Sheet |
+| Copper | FRED PCOPPUSDM |
+| Wheat | FRED PWHEAMTUSDM |
+| DXY | FRED DTWEXBGS |
 
 *Disclaimer: GeoPrice provides model-based forecasts and historical context for analytical purposes only. It is not investment advice and does not predict geopolitical events.*

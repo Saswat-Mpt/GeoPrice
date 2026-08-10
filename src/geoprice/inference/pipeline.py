@@ -93,7 +93,7 @@ def predict_next_month(commodity: str) -> Dict[str, Any]:
 def get_current_risk_context(commodity: str) -> Dict[str, Any]:
     """Retrieves current geopolitical risk regime, subindex percentiles, analogue statistics, and shock status."""
     current_regime_path = os.path.join(DATA_DIR, "current_gpr_regime.json")
-    regime_sum_path = os.path.join(DATA_DIR, "regime_summary.csv")
+    regime_sum_path = os.path.join(DATA_DIR, "current_regime_summary.csv")
     shock_meta_path = os.path.join(DATA_DIR, "gpr_shock_threshold.json")
     aligned_path = os.path.join(DATA_DIR, "monthly_aligned.csv")
 

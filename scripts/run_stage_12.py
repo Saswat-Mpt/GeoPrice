@@ -45,7 +45,9 @@ def generate_stage_12_figures(model_coef_df: pd.DataFrame, curr_contrib_df: pd.D
     plt.barh(brent_contribs['Feature'], brent_contribs['Contribution'] * 100, color=colors)
     plt.axvline(0, color='black', linewidth=0.8, linestyle='--')
     
-    plt.title("Current Forecast Feature Contributions (beta_j * z_j) for Brent (2026-07)", fontsize=12, fontweight='bold')
+    from geoprice.inference.pipeline import predict_next_month
+    origin_date = predict_next_month('Brent')['forecast_origin_date']
+    plt.title(f"Current Forecast Feature Contributions (beta_j * z_j) for Brent ({origin_date})", fontsize=12, fontweight='bold')
     plt.xlabel("Return Contribution (% points)", fontsize=10)
     plt.ylabel("Feature Name", fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.4)

@@ -52,9 +52,9 @@ def run_source_check():
     try:
         df_dxy_d = load_dxy_daily()
         df_dxy_m = aggregate_dxy_monthly(df_dxy_d)
-        checklist.append({"Dataset": "DXY - DTWEXBGS", "Source": "FRED / Yahoo Finance (Daily->Monthly Mean)", "Local file": "data/raw/fred/DTWEXBGS.csv", "Downloaded?": "Yes", "Date range": f"{df_dxy_m.index[0]} to {df_dxy_m.index[-1]}", "Rows": len(df_dxy_m), "Status": "PASS"})
+        checklist.append({"Dataset": "DXY - DTWEXBGS", "Source": "FRED (Daily->Monthly Mean)", "Local file": "data/raw/fred/DTWEXBGS.csv", "Downloaded?": "Yes", "Date range": f"{df_dxy_m.index[0]} to {df_dxy_m.index[-1]}", "Rows": len(df_dxy_m), "Status": "PASS"})
     except Exception as e:
-        checklist.append({"Dataset": "DXY - DTWEXBGS", "Source": "FRED / Yahoo", "Local file": "data/raw/fred/DTWEXBGS.csv", "Downloaded?": "No", "Date range": "N/A", "Rows": 0, "Status": f"FAIL ({e})"})
+        checklist.append({"Dataset": "DXY - DTWEXBGS", "Source": "FRED", "Local file": "data/raw/fred/DTWEXBGS.csv", "Downloaded?": "No", "Date range": "N/A", "Rows": 0, "Status": f"FAIL ({e})"})
 
     df_chk = pd.DataFrame(checklist)
     print(df_chk.to_string(index=False))

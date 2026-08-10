@@ -28,7 +28,9 @@ def generate_threats_acts_figures(df_full: pd.DataFrame, threat_shocks: pd.DataF
     plt.scatter(pd.to_datetime(threat_shocks['Date']), threat_shocks['GPRT'], color='#1f77b4', marker='^', s=40, label='Threat Shocks')
     plt.scatter(pd.to_datetime(act_shocks['Date']), act_shocks['GPRA'], color='#ff7f0e', marker='s', s=40, label='Act Shocks')
     
-    plt.title("Geopolitical Threats (GPRT) vs Geopolitical Acts (GPRA) Shocks (1985-2026)", fontsize=12, fontweight='bold')
+    valid_start = df_full['Date'].iloc[0]
+    valid_end = df_full['Date'].iloc[-1]
+    plt.title(f"Geopolitical Threats (GPRT) vs Geopolitical Acts (GPRA) Shocks ({valid_start} to {valid_end})", fontsize=12, fontweight='bold')
     plt.xlabel("Date", fontsize=10)
     plt.ylabel("Subindex Level", fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.5)

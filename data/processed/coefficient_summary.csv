@@ -1,6 +1,6 @@
 Commodity,Number_of_nonzero_coefficients,Number_of_zero_coefficients,Largest_positive_coefficient_feature,Largest_positive_coefficient,Largest_negative_coefficient_feature,Largest_negative_coefficient,Largest_current_positive_contribution_feature,Largest_current_positive_contribution,Largest_current_negative_contribution_feature,Largest_current_negative_contribution
-Brent,4,7,Brent_return_1m,0.029463448974726747,GPRA,-0.005684374284948076,Brent_return_3m,0.003283826430125801,GPRA,-0.009174798337499726
-Natural_Gas,5,6,GPRT,0.007383703084330717,Natural_Gas_vol_3m,-0.017556001784468745,GPRT,0.010317219630857147,GPR_lag3,-0.00783447857631236
+Brent,3,8,Brent_return_1m,0.026361916753627975,GPRA,-0.00648006344433,Brent_return_3m,0.0,Brent_return_1m,-0.05679654523435718
+Natural_Gas,4,7,Natural_Gas_return_1m,0.011946386711469664,Natural_Gas_vol_3m,-0.005332714378806244,GPRT,0.016238791059628034,GPR_lag3,-0.005614725381436121
 Gold,1,10,Gold_return_1m,0.0030038111330992186,Gold_return_3m,0.0,Gold_return_3m,-0.0,Gold_return_1m,-0.0035162765706374865
-Copper,1,10,Copper_return_1m,0.019005514910541425,Copper_return_3m,0.0,Copper_return_3m,0.0,Copper_return_1m,-0.0021174062727602272
-Wheat,3,8,Wheat_return_1m,0.008707770184496186,GPR_lag3,-0.002184838661456031,Wheat_return_1m,0.00919804285854706,GPR_lag3,-0.009749239694724143
+Copper,1,10,Copper_return_1m,0.018868787745208507,Copper_return_3m,0.0,Copper_return_3m,0.0,Copper_return_1m,-0.0010487725654570108
+Wheat,3,8,Wheat_return_1m,0.006246905670610589,GPR_lag3,-0.006111143967026129,Wheat_return_6m,0.0016942819240871976,GPR_lag3,-0.04601603211724858

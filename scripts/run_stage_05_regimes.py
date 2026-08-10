@@ -32,7 +32,9 @@ def generate_regime_figures(df_regimes: pd.DataFrame, current_state: dict, analo
     plt.axhline(thresholds['P75'], color='#ff7f0e', linestyle='--', linewidth=1.5, label=f"P75 Threshold ({thresholds['P75']:.1f}) [MOD/HIGH]")
     plt.axhline(thresholds['P90'], color='#d62728', linestyle='--', linewidth=1.5, label=f"P90 Threshold ({thresholds['P90']:.1f}) [HIGH/EXTREME]")
 
-    plt.title("GPR Level Time Series & Empirical Regime Cutoff Boundaries (1985-2026)", fontsize=12, fontweight='bold')
+    valid_start = df_regimes['Date'].iloc[0]
+    valid_end = df_regimes['Date'].iloc[-1]
+    plt.title(f"GPR Level Time Series & Empirical Regime Cutoff Boundaries ({valid_start} to {valid_end})", fontsize=12, fontweight='bold')
     plt.xlabel("Date", fontsize=10)
     plt.ylabel("GPR Level", fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.5)
@@ -135,7 +137,7 @@ def main():
     df_regimes[['Date', 'GPR', 'GPR_percentile', 'GPR_regime']].to_csv("data/processed/gpr_regime_months.csv", index=False)
     episodes_df.to_csv("data/processed/gpr_regime_episodes.csv", index=False)
     analogue_df.to_csv("data/processed/current_regime_analogue.csv", index=False)
-    analogue_sum.to_csv("data/processed/regime_summary.csv", index=False)
+    analogue_sum.to_csv("data/processed/current_regime_summary.csv", index=False)
     scenario_lookup.to_csv("data/processed/regime_scenario_lookup.csv", index=False)
 
     generate_regime_figures(df_regimes, current_state, analogue_sum, thresholds)

@@ -6,20 +6,20 @@ Phase 2 evaluated the historical descriptive relationship between geopolitical r
 ## 2. Key Analytical Findings
 
 ### Stage 3 — Systematic GPR Shock Analysis
-- **Analysis Window**: 1985-01 -> 2026-07 (499 months)
-- **Positive Delta GPR Cutoff (90th Pct)**: **37.49**
-- **Raw Shock Months**: 37.49010848999023 -> **21 non-overlapping shock episodes**
+- **Analysis Window**: 1992-01 -> 2026-06 (414 months)
+- **Positive Delta GPR Cutoff (90th Pct)**: **36.14**
+- **Raw Shock Months**: 36.143646240234375 -> **17 non-overlapping shock episodes**
 - **Finding**: Commodity responses following GPR shocks vary by commodity. Brent and Wheat exhibited modest post-shock negative return drift, while Natural Gas and Gold showed positive median responses over +3M horizons.
 
 ### Stage 4 — Threats vs Acts (GPRT vs GPRA)
-- **GPRT (Threats) 90th Pct Threshold**: **46.42** (19 episodes)
-- **GPRA (Acts) 90th Pct Threshold**: **37.20** (23 episodes)
+- **GPRT (Threats) 90th Pct Threshold**: **46.59** (16 episodes)
+- **GPRA (Acts) 90th Pct Threshold**: **36.33** (19 episodes)
 - **Finding**: Realized geopolitical acts (GPRA) were associated with stronger short-term positive price responses in Gold (+2.35% median) and Natural Gas (+6.35% median) compared to threat shocks (GPRT).
 
 ### Stage 5 — Current GPR Regime & Historical Analogue
 - **Empirical Cutoff Thresholds**: P50 = 92.8, P75 = 113.5, P90 = 146.7
-- **Current Situation (2026-07)**: GPR = **152.67** (92th percentile) -> **EXTREME** Regime.
-- **Historical Analogue**: 21 representative historical episodes in the EXTREME regime (1985-2026).
+- **Current Situation (2026-06)**: GPR = **179.72** (96th percentile) -> **EXTREME** Regime.
+- **Historical Analogue**: 21 representative historical episodes in the EXTREME regime (1992-2026).
 
 ### Stage 6 — Major Conflict Reference Cases
 - **Selected Documented References**: 4 systematic shock episodes (9/11 Attacks, 2003 Iraq Invasion, 2014 Crimea Crisis, 2022 Russia-Ukraine Invasion).

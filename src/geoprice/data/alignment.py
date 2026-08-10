@@ -4,8 +4,8 @@ import numpy as np
 from typing import Tuple, Dict, Any
 
 from geoprice.data.gpr import load_gpr
-from geoprice.data.world_bank import load_world_bank_commodities, inspect_world_bank_gold
-from geoprice.data.fred import load_dxy_daily, aggregate_dxy_monthly
+from geoprice.data.world_bank import load_world_bank_commodities, inspect_world_bank_gold, load_world_bank_gold
+from geoprice.data.fred import load_dxy_daily, aggregate_dxy_monthly, load_fred_commodities
 
 REQUIRED_COLUMNS = [
     'Date', 'GPR', 'GPRT', 'GPRA', 'Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat', 'DXY'
@@ -20,7 +20,9 @@ def align_datasets() -> Tuple[pd.DataFrame, Dict[str, Any]]:
     df_gpr = load_gpr() # Index: Period, cols: ['GPR', 'GPRT', 'GPRA']
     
     # 2. Load Commodities
-    df_comm = load_world_bank_commodities() # Index: Period, cols: ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
+    df_fred_comm = load_fred_commodities()  # Brent, Natural_Gas, Copper, Wheat from FRED
+    df_gold = load_world_bank_gold()  # Gold from World Bank Pink Sheet
+    df_comm = df_fred_comm.join(df_gold, how='outer')  # Combine
     
     # 3. Load & Aggregate DXY
     df_dxy_daily = load_dxy_daily()
@@ -164,11 +166,11 @@ def create_data_dictionary(df: pd.DataFrame, val_results: Dict[str, Any]) -> pd.
         {"Variable": "GPR", "Source": "Caldara-Iacoviello", "Series_ID": "GPR", "Frequency": "Monthly", "Transformation": "None", "Units": "Index (100 = 2000-2009 avg)", "First_Valid_Date": val_results['missing_summary']['GPR']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['GPR']['last_valid_date'], "Missing_Count": val_results['missing_summary']['GPR']['missing_count']},
         {"Variable": "GPRT", "Source": "Caldara-Iacoviello", "Series_ID": "GPRT / GPR_THREAT", "Frequency": "Monthly", "Transformation": "None", "Units": "Index", "First_Valid_Date": val_results['missing_summary']['GPRT']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['GPRT']['last_valid_date'], "Missing_Count": val_results['missing_summary']['GPRT']['missing_count']},
         {"Variable": "GPRA", "Source": "Caldara-Iacoviello", "Series_ID": "GPRA / GPR_ACT", "Frequency": "Monthly", "Transformation": "None", "Units": "Index", "First_Valid_Date": val_results['missing_summary']['GPRA']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['GPRA']['last_valid_date'], "Missing_Count": val_results['missing_summary']['GPRA']['missing_count']},
-        {"Variable": "Brent", "Source": "World Bank / IMF", "Series_ID": "POILBREUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/barrel", "First_Valid_Date": val_results['missing_summary']['Brent']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Brent']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Brent']['missing_count']},
-        {"Variable": "Natural_Gas", "Source": "World Bank / IMF", "Series_ID": "PNGASUSUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/MMBtu (Henry Hub)", "First_Valid_Date": val_results['missing_summary']['Natural_Gas']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Natural_Gas']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Natural_Gas']['missing_count']},
+        {"Variable": "Brent", "Source": "FRED", "Series_ID": "POILBREUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/barrel", "First_Valid_Date": val_results['missing_summary']['Brent']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Brent']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Brent']['missing_count']},
+        {"Variable": "Natural_Gas", "Source": "FRED", "Series_ID": "PNGASUSUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/MMBtu (Henry Hub)", "First_Valid_Date": val_results['missing_summary']['Natural_Gas']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Natural_Gas']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Natural_Gas']['missing_count']},
         {"Variable": "Gold", "Source": "World Bank Pink Sheet", "Series_ID": "Monthly Prices (Col 69)", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/troy oz", "First_Valid_Date": val_results['missing_summary']['Gold']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Gold']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Gold']['missing_count']},
-        {"Variable": "Copper", "Source": "World Bank / IMF", "Series_ID": "PCOPPUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/metric ton", "First_Valid_Date": val_results['missing_summary']['Copper']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Copper']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Copper']['missing_count']},
-        {"Variable": "Wheat", "Source": "World Bank / IMF", "Series_ID": "PWHEAMTUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/metric ton (US HRW)", "First_Valid_Date": val_results['missing_summary']['Wheat']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Wheat']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Wheat']['missing_count']},
+        {"Variable": "Copper", "Source": "FRED", "Series_ID": "PCOPPUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/metric ton", "First_Valid_Date": val_results['missing_summary']['Copper']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Copper']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Copper']['missing_count']},
+        {"Variable": "Wheat", "Source": "FRED", "Series_ID": "PWHEAMTUSDM", "Frequency": "Monthly", "Transformation": "None", "Units": "USD/metric ton (US HRW)", "First_Valid_Date": val_results['missing_summary']['Wheat']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['Wheat']['last_valid_date'], "Missing_Count": val_results['missing_summary']['Wheat']['missing_count']},
         {"Variable": "DXY", "Source": "FRED", "Series_ID": "DTWEXBGS", "Frequency": "Daily", "Transformation": "Monthly arithmetic mean", "Units": "Index", "First_Valid_Date": val_results['missing_summary']['DXY']['first_valid_date'], "Last_Valid_Date": val_results['missing_summary']['DXY']['last_valid_date'], "Missing_Count": val_results['missing_summary']['DXY']['missing_count']},
     ]
     return pd.DataFrame(dict_rows)

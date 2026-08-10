@@ -30,10 +30,25 @@ st.markdown("""
 aligned_path = "data/processed/monthly_aligned.csv"
 if os.path.exists(aligned_path):
     df_aligned = pd.read_csv(aligned_path)
-    latest_gpr_date = str(df_aligned['Date'].iloc[-1])
-    target_period = str((pd.to_datetime(latest_gpr_date) + pd.DateOffset(months=1)).to_period('M'))
+    # Calculate latest date per series
+    latest_gpr_date = df_aligned.dropna(subset=['GPR'])['Date'].iloc[-1]
+    latest_commodity_date = df_aligned.dropna(subset=['Brent','Gold'])['Date'].iloc[-1]
+    latest_dxy_date = df_aligned.dropna(subset=['DXY'])['Date'].iloc[-1]
+    # Forecast origin = latest row with complete features
+    feat_path_check = 'data/processed/feature_dataset.csv'
+    if os.path.exists(feat_path_check):
+        df_feat = pd.read_csv(feat_path_check)
+        # Get the latest row that has all required features for at least one commodity
+        forecast_origin = df_feat.dropna(subset=['GPR','DXY','Brent_return_1m'])['Date'].iloc[-1]
+        target_period = str((pd.to_datetime(forecast_origin) + pd.DateOffset(months=1)).to_period('M'))
+    else:
+        forecast_origin = latest_gpr_date
+        target_period = 'Next Month'
 else:
     latest_gpr_date = "Latest Available Month"
+    latest_commodity_date = "Latest Available Month"
+    latest_dxy_date = "Latest Available Month"
+    forecast_origin = "Latest Available Month"
     target_period = "Next Month"
 
 # Sidebar
@@ -52,7 +67,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("**System Architecture:**")
 st.sidebar.markdown("- **Pipeline**: `StandardScaler -> ElasticNet`")
 st.sidebar.markdown("- **Validation**: Expanding-Window OOS CV")
-st.sidebar.markdown(f"- **Data Vintage**: Through `{latest_gpr_date}`")
+st.sidebar.markdown(f"- **Data Vintage**: Through `{forecast_origin}`")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
@@ -66,11 +81,12 @@ st.markdown("<div class='sub-header'>Historical evidence + geopolitical context 
 
 # 1. Data Freshness Banner (Dynamic Dates)
 st.info(
-    f"🗓️ **Data Vintage & Horizon Information**\n\n"
-    f"- **Geopolitical Risk Indices (GPR/GPRT/GPRA):** Monthly data through `{latest_gpr_date}`\n"
-    f"- **Commodity Prices & Macro Control (DXY):** Monthly data through `{latest_gpr_date}`\n"
-    f"- **Forecast Target Horizon:** Next-month return `{target_period}` ($y_t = P_{{t+1}}/P_t - 1$)\n\n"
-    f"*Note: Release-aware availability rules documented and validated; figures reflect latest available monthly observations.*"
+    f"Data Vintage & Horizon Information\n\n"
+    f"- **GPR/GPRT/GPRA:** Through `{latest_gpr_date}`\n"
+    f"- **Commodity Prices:** Through `{latest_commodity_date}`\n"
+    f"- **DXY:** Through `{latest_dxy_date}`\n"
+    f"- **Forecast Origin:** `{forecast_origin}` | Target: `{target_period}`\n\n"
+    f"*Release-aware availability rule applied; full historical vintage reconstruction not performed.*"
 )
 
 # 2. Current GPR Snapshot

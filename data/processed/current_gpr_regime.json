@@ -1,10 +1,10 @@
 {
-    "current_date": "2026-07",
-    "current_GPR": 152.66822814941406,
-    "current_GPR_percentile": 91.98396793587175,
+    "current_date": "2026-06",
+    "current_GPR": 179.72244262695312,
+    "current_GPR_percentile": 96.13526570048309,
     "current_GPR_regime": "EXTREME",
-    "current_GPRT": 175.02061462402344,
-    "current_GPRT_percentile": 94.38877755511022,
-    "current_GPRA": 168.84104919433594,
-    "current_GPRA_percentile": 90.78156312625251
+    "current_GPRT": 214.9290313720703,
+    "current_GPRT_percentile": 96.85990338164251,
+    "current_GPRA": 184.4062957763672,
+    "current_GPRA_percentile": 92.9951690821256
 }

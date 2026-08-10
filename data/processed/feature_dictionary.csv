@@ -5,7 +5,7 @@ GPR_lag1,Geopolitical,GPR level at month t-1 (GPR_(t-1)),Caldara-Iacoviello,Lag-
 GPR_lag3,Geopolitical,GPR level at month t-3 (GPR_(t-3)),Caldara-Iacoviello,Lag-3,Release-aware point-in-time,First 3 months NaN
 GPRT,Geopolitical,Geopolitical Threats subindex level (GPRT_t),Caldara-Iacoviello,Current Month,Release-aware point-in-time,Missing pre-1985
 GPRA,Geopolitical,Geopolitical Acts subindex level (GPRA_t),Caldara-Iacoviello,Current Month,Release-aware point-in-time,Missing pre-1985
-DXY,Macro Control,Monthly arithmetic mean U.S. Dollar Index,FRED / Yahoo,Current Month,Point-in-time control,Missing pre-2001
+DXY,Macro Control,Monthly arithmetic mean U.S. Dollar Index,FRED,Current Month,Point-in-time control,Missing pre-2001
 Brent_return_1m,Commodity History,1-month decimal return: P_t / P_(t-1) - 1 for Brent,World Bank / IMF,1 Month,Point-in-time price,First month NaN
 Brent_return_3m,Commodity History,3-month decimal return: P_t / P_(t-3) - 1 for Brent,World Bank / IMF,3 Months,Point-in-time price,First 3 months NaN
 Brent_return_6m,Commodity History,6-month decimal return: P_t / P_(t-6) - 1 for Brent,World Bank / IMF,6 Months,Point-in-time price,First 6 months NaN

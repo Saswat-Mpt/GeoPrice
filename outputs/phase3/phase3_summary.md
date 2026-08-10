@@ -9,11 +9,11 @@ Phase 3 evaluated out-of-sample monthly commodity return predictions using **exp
 
 | Commodity | Baseline MAE | GeoPrice MAE | MAE Improvement | Baseline DA | GeoPrice DA | DA Improvement |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Brent** | 6.60% | 6.69% | -1.42% | 54.8% | 53.8% | -1.0 pts |
-| **Natural_Gas** | 11.42% | 11.75% | -2.83% | 47.7% | 47.7% | +0.0 pts |
+| **Brent** | 6.24% | 6.30% | -0.98% | 55.3% | 54.3% | -1.0 pts |
+| **Natural_Gas** | 9.34% | 9.63% | -3.15% | 49.7% | 50.3% | +0.5 pts |
 | **Gold** | 2.86% | 2.84% | +0.61% | 53.8% | 53.8% | +0.0 pts |
-| **Copper** | 3.59% | 3.68% | -2.35% | 54.3% | 53.8% | -0.5 pts |
-| **Wheat** | 5.11% | 5.29% | -3.44% | 50.5% | 51.0% | +0.5 pts |
+| **Copper** | 3.59% | 3.67% | -2.25% | 54.8% | 55.3% | +0.5 pts |
+| **Wheat** | 5.30% | 5.30% | +0.04% | 55.8% | 56.3% | +0.5 pts |
 
 ## 3. Key Data-Driven Conclusions
 1. **Gold**: GeoPrice achieved lower out-of-sample forecasting error (**2.84% MAE** vs 2.86% Baseline MAE), demonstrating marginal predictive improvement when incorporating geopolitical features.

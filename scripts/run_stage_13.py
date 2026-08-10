@@ -107,14 +107,28 @@ def main():
 
     # 4. Programmatic Pytest Verification
     print("\n[Step 4/5] Executing full automated pytest test suite...")
-    test_ret = pytest.main(["tests/", "-q"])
+    class PytestResultPlugin:
+        def __init__(self):
+            self.passed = 0
+            self.failed = 0
+        def pytest_runtest_logreport(self, report):
+            if report.when == 'call':
+                if report.passed:
+                    self.passed += 1
+                elif report.failed:
+                    self.failed += 1
+
+    plugin = PytestResultPlugin()
+    test_ret = pytest.main(["tests/", "-q"], plugins=[plugin])
     if test_ret != 0:
         print("ERROR: Pytest test suite failed! Stopping Stage 13 validation.")
         sys.exit(1)
     
+    actual_passed = plugin.passed
+    
     # 5. Generate Final Project Summary Report
     print("\n[Step 5/5] Writing final project master summary to outputs/phase4/final_project_summary.md...")
-    run_phase_4_final_summary(test_pass_count=61)
+    run_phase_4_final_summary(test_pass_count=actual_passed)
 
     print("\n" + "=" * 80)
     print("STAGE 13 & PHASE 4 FINAL SUMMARY REPORT")
@@ -125,7 +139,7 @@ def main():
     print("  3. Page 3: Outlook & Scenario Explorer (pages/3_Outlook.py)")
     print("\nStartup Command:")
     print("  streamlit run app.py")
-    print("\nAutomated Unit Tests: 61/61 PASSED (100%)")
+    print(f"\nAutomated Unit Tests: {actual_passed}/{actual_passed} PASSED (100%)")
     print("=" * 80)
     print("PHASE 4: COMPLETE")
     print("GEOPRICE PROJECT: COMPLETE")

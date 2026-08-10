@@ -4,7 +4,6 @@ import requests
 
 GPR_URL = "https://www.matteoiacoviello.com/gpr_files/data_gpr_export.xls"
 LOCAL_GPR_PATH = "data/raw/gpr/data_gpr_export.xls"
-ALT_GPR_PATH = "data/raw/gpr/gpr_web_latest.xlsx"
 
 def download_gpr_if_missing(local_path: str = LOCAL_GPR_PATH) -> str:
     """Download official Caldara-Iacoviello GPR dataset if not present locally."""
@@ -27,35 +26,23 @@ def load_gpr(local_path: str = LOCAL_GPR_PATH) -> pd.DataFrame:
     Loads Caldara-Iacoviello GPR dataset and extracts GPR, GPRT, GPRA.
     Returns DataFrame indexed by monthly PeriodIndex with numeric columns ['GPR', 'GPRT', 'GPRA'].
     """
-    df_raw = None
-    
-    # 1. Try primary XLS file
     file_path = download_gpr_if_missing(local_path)
-    if os.path.exists(file_path):
-        try:
-            df_temp = pd.read_excel(file_path)
-            # Validate expected date & GPR columns exist
-            d_col = 'month' if 'month' in df_temp.columns else ('Date' if 'Date' in df_temp.columns else ('date' if 'date' in df_temp.columns else None))
-            if d_col is not None and 'GPR' in df_temp.columns:
-                df_raw = df_temp
-        except Exception:
-            df_raw = None
+    if not os.path.exists(file_path):
+        raise ValueError(f"Could not download or find GPR dataset at '{file_path}'.")
 
-    # 2. Try alternative local XLSX file if XLS failed or had missing columns
-    if df_raw is None and os.path.exists(ALT_GPR_PATH):
-        try:
-            df_temp = pd.read_excel(ALT_GPR_PATH, engine="openpyxl")
-            d_col = 'month' if 'month' in df_temp.columns else ('Date' if 'Date' in df_temp.columns else ('date' if 'date' in df_temp.columns else None))
-            if d_col is not None and 'GPR' in df_temp.columns:
-                df_raw = df_temp
-        except Exception:
-            df_raw = None
-
-    if df_raw is None:
-        raise ValueError(f"Could not load valid GPR dataset from '{file_path}' or '{ALT_GPR_PATH}'.")
+    try:
+        df_raw = pd.read_excel(file_path, engine='xlrd')
+    except ImportError:
+        raise ImportError("xlrd is required to read the GPR .xls file.")
+    except Exception as e:
+        raise ValueError(f"Failed to read GPR dataset: {e}")
     
-    # Determine date column
-    date_col = 'month' if 'month' in df_raw.columns else ('Date' if 'Date' in df_raw.columns else 'date')
+    d_col = 'month' if 'month' in df_raw.columns else ('Date' if 'Date' in df_raw.columns else ('date' if 'date' in df_raw.columns else None))
+    
+    if d_col is None or 'GPR' not in df_raw.columns:
+        raise ValueError(f"Required columns not found in GPR dataset. Found columns: {df_raw.columns}")
+        
+    date_col = d_col
     df_raw['Period'] = pd.to_datetime(df_raw[date_col], errors='coerce').dt.to_period('M')
     df = df_raw.dropna(subset=['Period']).copy()
     

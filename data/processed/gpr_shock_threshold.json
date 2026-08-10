@@ -1,9 +1,9 @@
 {
-    "total_valid_changes": 498,
-    "positive_change_count": 240,
+    "total_valid_changes": 413,
+    "positive_change_count": 201,
     "percentile": 90.0,
-    "threshold": 37.49010848999023,
+    "threshold": 36.143646240234375,
     "min_pos_change": 0.11655426025392046,
     "max_pos_change": 434.54015350341797,
-    "median_pos_change": 10.396476745605469
+    "median_pos_change": 9.947063446044915
 }

@@ -6,7 +6,7 @@
         "l1_ratio": 0.5,
         "start_year": 2006,
         "min_train_months": 48,
-        "total_oos_predictions": 198,
+        "total_oos_predictions": 197,
         "feature_columns": [
             "Brent_return_1m",
             "Brent_return_3m",
@@ -22,7 +22,7 @@
         "l1_ratio": 0.5,
         "start_year": 2006,
         "min_train_months": 48,
-        "total_oos_predictions": 198,
+        "total_oos_predictions": 197,
         "feature_columns": [
             "Natural_Gas_return_1m",
             "Natural_Gas_return_3m",
@@ -54,7 +54,7 @@
         "l1_ratio": 0.5,
         "start_year": 2006,
         "min_train_months": 48,
-        "total_oos_predictions": 198,
+        "total_oos_predictions": 197,
         "feature_columns": [
             "Copper_return_1m",
             "Copper_return_3m",
@@ -70,7 +70,7 @@
         "l1_ratio": 0.5,
         "start_year": 2006,
         "min_train_months": 48,
-        "total_oos_predictions": 198,
+        "total_oos_predictions": 197,
         "feature_columns": [
             "Wheat_return_1m",
             "Wheat_return_3m",

@@ -62,3 +62,9 @@ def test_current_gpr_delta_uses_previous_gpr_month():
             expected_delta = float(gpr_curr - gpr_prev)
             assert np.isclose(ctx['latest_delta_gpr'], expected_delta)
             assert not np.isclose(ctx['latest_delta_gpr'], 0.0)
+
+def test_forecast_target_month():
+    res = predict_next_month("Brent")
+    origin = pd.to_datetime(res['forecast_origin_date'])
+    expected_target = str((origin + pd.DateOffset(months=1)).to_period('M'))
+    assert res['target_month'] == expected_target, f"Target month {res['target_month']} != expected {expected_target}"
