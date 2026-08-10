@@ -155,3 +155,17 @@ def test_ablation_models_share_oos_dates():
         c_abl = abl_df[abl_df['Commodity'] == c]
         n_counts = c_abl['N'].unique()
         assert len(n_counts) == 1, f"Ablation model sample size mismatch for {c}: {n_counts}"
+
+def test_paired_error_uncertainty_structure():
+    """Tests that paired error uncertainty outputs correct columns and valid confidence intervals."""
+    from geoprice.models.evaluation import compute_paired_error_uncertainty
+    geo_preds = pd.read_csv("data/processed/geoprice_predictions.csv")
+    base_preds = pd.read_csv("data/processed/baseline_predictions.csv")
+    
+    paired_df = compute_paired_error_uncertainty(geo_preds, base_preds, n_bootstrap=100)
+    
+    required_cols = {"Commodity", "N", "Mean_Paired_Diff", "Std_Paired_Diff", "CI_95_Lower", "CI_95_Upper", "Statistically_Significant"}
+    assert required_cols.issubset(set(paired_df.columns)), f"Missing columns: {required_cols - set(paired_df.columns)}"
+    assert len(paired_df) == 5, f"Expected 5 commodities, got {len(paired_df)}"
+    for _, r in paired_df.iterrows():
+        assert r["CI_95_Lower"] <= r["Mean_Paired_Diff"] <= r["CI_95_Upper"], "Mean paired difference must fall within 95% CI bounds"

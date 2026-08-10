@@ -45,6 +45,62 @@ def compute_model_improvements(base_metrics_df: pd.DataFrame, geo_metrics_df: pd
         
     return pd.DataFrame(imp_rows)
 
+def compute_paired_error_uncertainty(
+    geo_preds_df: pd.DataFrame,
+    base_preds_df: pd.DataFrame,
+    n_bootstrap: int = 1000,
+    seed: int = 42
+) -> pd.DataFrame:
+    """
+    Computes paired monthly absolute error differences d_t = |y_t - y_hat_base| - |y_t - y_hat_geo|
+    and 95% bootstrap confidence intervals for mean(d_t).
+    Positive mean_d indicates GeoPrice error reduction relative to Baseline.
+    """
+    np.random.seed(seed)
+    rows = []
+    
+    merged = pd.merge(
+        geo_preds_df,
+        base_preds_df.rename(columns={"Predicted_Return": "Baseline_Predicted"}),
+        on=['Date', 'Commodity', 'Actual_Return']
+    )
+    
+    for c in COMMODITIES:
+        sub = merged[merged['Commodity'] == c].copy()
+        if len(sub) == 0:
+            continue
+            
+        base_err = np.abs(sub['Actual_Return'] - sub['Baseline_Predicted'])
+        geo_err = np.abs(sub['Actual_Return'] - sub['Predicted_Return'])
+        d_t = (base_err - geo_err).values  # Positive means GeoPrice MAE is smaller
+        
+        mean_d = float(np.mean(d_t))
+        std_d = float(np.std(d_t, ddof=1))
+        
+        # Bootstrap 95% CI
+        boot_means = []
+        n_samples = len(d_t)
+        for _ in range(n_bootstrap):
+            boot_sample = np.random.choice(d_t, size=n_samples, replace=True)
+            boot_means.append(np.mean(boot_sample))
+            
+        ci_lower = float(np.percentile(boot_means, 2.5))
+        ci_upper = float(np.percentile(boot_means, 97.5))
+        
+        is_stat_sig = bool((ci_lower > 0 and ci_upper > 0) or (ci_lower < 0 and ci_upper < 0))
+        
+        rows.append({
+            "Commodity": c,
+            "N": n_samples,
+            "Mean_Paired_Diff": mean_d,
+            "Std_Paired_Diff": std_d,
+            "CI_95_Lower": ci_lower,
+            "CI_95_Upper": ci_upper,
+            "Statistically_Significant": is_stat_sig
+        })
+        
+    return pd.DataFrame(rows)
+
 def compute_regime_robustness(
     geo_preds_df: pd.DataFrame,
     base_preds_df: pd.DataFrame,

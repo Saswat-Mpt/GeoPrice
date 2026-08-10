@@ -163,10 +163,14 @@ def main():
     imp_df = compute_model_improvements(base_metrics, geo_metrics)
 
     # 3. Robustness & Error Analyses
-    print("\n[Step 3/5] Performing regime subgroup robustness, directional, and error analyses...")
+    print("\n[Step 3/5] Performing regime subgroup robustness, directional, paired error uncertainty, and error analyses...")
     rob_df, merged_preds = compute_regime_robustness(geo_preds, base_preds, df_regimes)
     dir_df = compute_directional_confusion(geo_preds)
     err_df = compute_largest_prediction_errors(geo_preds, df_aligned, top_k=5)
+
+    from geoprice.models.evaluation import compute_paired_error_uncertainty
+    paired_df = compute_paired_error_uncertainty(geo_preds, base_preds)
+    paired_df.to_csv("outputs/phase3/paired_error_uncertainty.csv", index=False)
 
     # Coefficient summary
     geo_coefs = pd.read_csv("data/processed/geoprice_coefficients.csv")
