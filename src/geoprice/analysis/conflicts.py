@@ -11,6 +11,7 @@ DOCUMENTED_CONFLICT_CANDIDATES = [
         "event_end": "2001-10",
         "representative_shock_date": "2001-09",
         "source": "U.S. Department of State / Britannica",
+        "source_url": "https://www.britannica.com/event/September-11-attacks",
         "notes": "Systematic GPR shock triggered by September 11 terrorist attacks."
     },
     {
@@ -19,6 +20,7 @@ DOCUMENTED_CONFLICT_CANDIDATES = [
         "event_end": "2003-05",
         "representative_shock_date": "2003-03",
         "source": "U.N. Security Council Records / Britannica",
+        "source_url": "https://www.britannica.com/event/Iraq-War",
         "notes": "Systematic GPR shock during U.S.-led invasion of Iraq."
     },
     {
@@ -27,6 +29,7 @@ DOCUMENTED_CONFLICT_CANDIDATES = [
         "event_end": "2014-04",
         "representative_shock_date": "2014-03",
         "source": "OSCE / International Court of Justice / Britannica",
+        "source_url": "https://www.osce.org/ukraine-crisis",
         "notes": "Systematic GPR shock triggered by annexation of Crimea."
     },
     {
@@ -35,6 +38,7 @@ DOCUMENTED_CONFLICT_CANDIDATES = [
         "event_end": "2022-04",
         "representative_shock_date": "2022-03",
         "source": "U.N. General Assembly Resolutions / Britannica",
+        "source_url": "https://news.un.org/en/story/2022/03/1113152",
         "notes": "Systematic GPR shock following full-scale invasion of Ukraine."
     }
 ]
@@ -62,6 +66,7 @@ def map_conflict_reference_cases(shock_episodes_df: pd.DataFrame, responses_df: 
                 "GPR": float(resp_row['GPR'].iloc[0]) if len(resp_row) > 0 else np.nan,
                 "GPR_change": float(resp_row['GPR_change'].iloc[0]) if len(resp_row) > 0 else np.nan,
                 "source": cand['source'],
+                "source_url": cand['source_url'],
                 "notes": cand['notes']
             }
             

@@ -122,9 +122,19 @@ def get_current_risk_context(commodity: str) -> Dict[str, Any]:
     m3_median = float(m3_row['Median'].iloc[0]) if len(m3_row) > 0 else np.nan
     n_episodes = int(m1_row['N'].iloc[0]) if len(m1_row) > 0 else 0
 
-    # Calculate shock status for latest month
-    latest_gpr = df_aligned.loc[latest_date, 'GPR'] if latest_date in df_aligned.index else curr_state['current_GPR']
-    prev_gpr = df_aligned.iloc[-2]['GPR'] if len(df_aligned) > 1 else latest_gpr
+    # Calculate shock status for latest month relative to immediately preceding month
+    if latest_date in df_aligned.index:
+        latest_gpr = float(df_aligned.loc[latest_date, 'GPR'])
+        curr_loc = df_aligned.index.get_loc(latest_date)
+        if curr_loc > 0:
+            prev_date = df_aligned.index[curr_loc - 1]
+            prev_gpr = float(df_aligned.loc[prev_date, 'GPR'])
+        else:
+            prev_gpr = latest_gpr
+    else:
+        latest_gpr = float(curr_state['current_GPR'])
+        prev_gpr = latest_gpr
+
     latest_dgpr = float(latest_gpr - prev_gpr)
     
     is_shock = bool(latest_dgpr >= shock_meta['threshold'])

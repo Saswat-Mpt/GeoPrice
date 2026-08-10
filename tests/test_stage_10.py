@@ -47,3 +47,18 @@ def test_get_current_risk_context():
 def test_missing_model_error_handling():
     with pytest.raises(FileNotFoundError):
         predict_next_month("InvalidCommodity")
+
+def test_current_gpr_delta_uses_previous_gpr_month():
+    df_aligned = pd.read_csv("data/processed/monthly_aligned.csv").set_index('Date')
+    ctx = get_current_risk_context("Brent")
+    latest_date = ctx['latest_date']
+    
+    if latest_date in df_aligned.index:
+        curr_loc = df_aligned.index.get_loc(latest_date)
+        if curr_loc > 0:
+            prev_date = df_aligned.index[curr_loc - 1]
+            gpr_curr = df_aligned.loc[latest_date, 'GPR']
+            gpr_prev = df_aligned.loc[prev_date, 'GPR']
+            expected_delta = float(gpr_curr - gpr_prev)
+            assert np.isclose(ctx['latest_delta_gpr'], expected_delta)
+            assert not np.isclose(ctx['latest_delta_gpr'], 0.0)

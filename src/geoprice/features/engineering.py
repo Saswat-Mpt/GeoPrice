@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+from geoprice.features.availability import apply_gpr_availability_rule, apply_dxy_availability_rule
+
 COMMODITIES = ['Brent', 'Natural_Gas', 'Gold', 'Copper', 'Wheat']
 
 def calculate_returns(df: pd.DataFrame, commodity: str) -> pd.DataFrame:
@@ -32,9 +34,9 @@ def calculate_rolling_volatility(df: pd.DataFrame, commodity: str) -> pd.DataFra
     res[f"{commodity}_vol_3m"] = ret_1m.rolling(window=3, min_periods=3).std(ddof=1)
     return res
 
-def create_geopolitical_features(df: pd.DataFrame) -> pd.DataFrame:
+def create_geopolitical_features(df: pd.DataFrame, release_lag_months: int = 0) -> pd.DataFrame:
     """
-    Creates 6 geopolitical risk features from GPR, GPRT, GPRA:
+    Creates 6 geopolitical risk features from GPR, GPRT, GPRA using release-aware availability rule:
     1. GPR level (GPR_t)
     2. GPR monthly change (GPR_t - GPR_(t-1), absolute change)
     3. GPR lag-1 (GPR_(t-1))
@@ -42,26 +44,29 @@ def create_geopolitical_features(df: pd.DataFrame) -> pd.DataFrame:
     5. GPRT level (GPRT_t)
     6. GPRA level (GPRA_t)
     """
+    df_pit = apply_gpr_availability_rule(df, release_lag_months=release_lag_months)
     res = pd.DataFrame(index=df.index)
     
-    res['GPR'] = df['GPR']
-    res['GPR_change'] = df['GPR'] - df['GPR'].shift(1)
-    res['GPR_lag1'] = df['GPR'].shift(1)
-    res['GPR_lag3'] = df['GPR'].shift(3)
-    res['GPRT'] = df['GPRT']
-    res['GPRA'] = df['GPRA']
+    gpr_series = df_pit['GPR_pit']
+    res['GPR'] = gpr_series
+    res['GPR_change'] = gpr_series - gpr_series.shift(1)
+    res['GPR_lag1'] = gpr_series.shift(1)
+    res['GPR_lag3'] = gpr_series.shift(3)
+    res['GPRT'] = df_pit['GPRT_pit']
+    res['GPRA'] = df_pit['GPRA_pit']
     
     return res
 
-def create_macro_control_feature(df: pd.DataFrame) -> pd.DataFrame:
+def create_macro_control_feature(df: pd.DataFrame, release_lag_months: int = 0) -> pd.DataFrame:
     """
-    Extracts DXY macro control feature.
+    Extracts DXY macro control feature using release-aware availability rule.
     """
+    df_pit = apply_dxy_availability_rule(df, release_lag_months=release_lag_months)
     res = pd.DataFrame(index=df.index)
-    res['DXY'] = df['DXY']
+    res['DXY'] = df_pit['DXY_pit']
     return res
 
-def build_feature_dataset(df_aligned: pd.DataFrame) -> pd.DataFrame:
+def build_feature_dataset(df_aligned: pd.DataFrame, release_lag_months: int = 0) -> pd.DataFrame:
     """
     Builds the master Stage 2 feature dataset.
     Contains:
@@ -79,11 +84,11 @@ def build_feature_dataset(df_aligned: pd.DataFrame) -> pd.DataFrame:
     feature_dfs = []
     
     # 1. Common Geopolitical Features (6)
-    geo_df = create_geopolitical_features(df)
+    geo_df = create_geopolitical_features(df, release_lag_months=release_lag_months)
     feature_dfs.append(geo_df)
     
     # 2. Common Macro Control (1)
-    macro_df = create_macro_control_feature(df)
+    macro_df = create_macro_control_feature(df, release_lag_months=release_lag_months)
     feature_dfs.append(macro_df)
     
     # 3. Commodity-Specific Features (4 per commodity)

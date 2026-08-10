@@ -16,8 +16,10 @@ def test_phase3_outputs_exist_and_aligned():
         b_preds = pd.read_csv(b_pred_path)
         g_preds = pd.read_csv(g_pred_path)
         
-        # Test date and target alignment
-        assert list(b_preds['Date']) == list(g_preds['Date'])
+        # Test commodity, date, and target return alignment
+        b_keys = list(zip(b_preds['Commodity'], b_preds['Date']))
+        g_keys = list(zip(g_preds['Commodity'], g_preds['Date']))
+        assert b_keys == g_keys, "(Commodity, Date) prediction key alignment failed between Baseline and GeoPrice!"
         assert np.allclose(b_preds['Actual_Return'], g_preds['Actual_Return'])
 
 def test_improvements_calculation():
